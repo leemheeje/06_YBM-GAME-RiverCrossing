@@ -1,0 +1,347 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=1280">
+	<title>Crocodile</title>
+	<script type="text/javascript">
+	if (location.href.indexOf(':8000') != -1) document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')
+	</script>
+	<script src="./js/plugin/jquery-1.9.1.min.js"></script>
+	<script src="./js/plugin/jquery.easing.1.3.js"></script>
+	<link rel="stylesheet" type="text/css" href="./css/style.css">
+</head>
+
+<body>
+	<div class="blgm_wrap" style="background: url(./games/game4_BuildBridge/images/img_breaktime_basic-full.png)">
+		<span id="point">333</span>
+		<div class="blgm_in animated">
+			<div class="score_warp">
+				<span class="scr_txt tp01 scoreTeethLeng"></span>
+				<span class="scr_txt tp02 scoreTeethTotal"></span>
+			</div>
+			<div class="tnd_eye_area">
+				<div class="ey_img eyeImg"> </div>
+			</div>
+			<div class="tnd_area tndArea">
+				<div class="tnd_wrap teethWrap"></div>
+			</div>
+			<div class="anesth_wrap anesthWrap"></div>
+		</div>
+		<!-- 게임 공통 : S -->
+		<div id="ybm_game_2_ready" class="game_ready">
+			<div>
+				<span>How To Play</span>
+				<button type="button" id="start_game_2" class="start_game">시작</button>
+			</div>
+		</div>
+		<div id="game_2_next" class="game_over">
+			<div>
+				<p><em id="game_2_point">100</em><em>포인트</em>가 적립되었습니다.</em>
+				</p>
+				<button id="game_2_over">다음</button>
+			</div>
+		</div>
+		<!-- 게임 공통 : E -->
+		<div class="sound_lst soundPlayLst">
+			<audio src="./sound/chuck.mp3" class="sndLst tp01"></audio>
+			<audio src="./sound/DingDong.mp3" class="sndLst tp02"></audio>
+			<audio src="./sound/result.mp3" class="sndLst tp03"></audio>
+			<audio src="./sound/start.mp3" class="sndLst tp04"></audio>
+		</div>
+		<button id="ios_audio_button" class="">사운드 온오프</button>
+		<div class="pop_miss popMiss">
+			<span class="pop_img popMissImg"></span>
+		</div>
+	</div>
+	<script type="text/javascript">
+	//var gamePath = Game.gamePath[Game.gameCode]; //폴더경로 변경값
+	var Crocodile = function(obj) {
+		this.obj = $.extend(true, {
+			teethWrap: '.teethWrap',
+			teethEl: '.teethEl',
+			teethLength: 12,
+			anesth: 3,
+			level: 7,
+			maxGamePoint: 25,
+			scoreTeethTotal: '.scoreTeethTotal',
+			scoreTeethLeng: '.scoreTeethLeng',
+			anesthWrap: '.anesthWrap',
+			anesthImg: '.anesthImg',
+			imgCursor: '.imgCursor',
+			eye: '.eyeImg',
+			popMiss: '.popMiss',
+			popMissImg: '.popMissImg'
+		}, obj);
+		this.cavityClsName = '.cavity';
+		this.count = 0;
+		this.loopCount = this.obj.teethLength;
+		this.successCount = [];
+		this.bool = null;
+		this.gamePiont = 0;
+		this.gameFinish = false;
+		this.sound = {
+			bool: true,
+			el: '.soundPlayLst',
+			onoff: '#ios_audio_button',
+			//물엇을때 , 성공햇을때, 포인트
+			lst: ['.sndLst.tp01', '.sndLst.tp02', '.sndLst.tp03', '.sndLst.tp04'],
+		};
+		this.loop = function() {};
+		this.user();
+		this.init();
+	};
+	Crocodile.prototype = {
+		init: function() {
+			this.set().teethAppend();
+			this.setSound();
+			this.loopFun();
+			this.bind();
+			this.getSound(this.sound.lst[0], true);
+			this.getSound(this.sound.lst[1], true);
+			this.getSound(this.sound.lst[2], true);
+		},
+		user: function() {
+			var user = navigator.userAgent;
+			var userArray = [
+				['mob', user.indexOf('Mobile') != -1],
+				['android', user.indexOf('Android') != -1],
+				['iphone', user.indexOf('iPhone') != -1]
+			];
+			for (var i = 0; i < userArray.length; i++) {
+				if (userArray[i][1]) {
+					$('html').addClass(userArray[i][0]);
+					this.mobile = true;
+				}
+			}
+			if (this.mobile && this.obj.level > 2) {
+				this.obj.level = this.obj.level - 2;
+			}
+		},
+		setSound: function() {
+			var _this = this;
+			var button = '';
+			$(this.sound.onoff).off().on('click', function() {
+				$(this).toggleClass('off');
+				if ($(this).is('.off')) {
+					_this.sound.bool = false;
+				} else {
+					_this.sound.bool = true;
+				}
+			});
+			for (var i = 0; i < this.sound.lst.length; i++) {
+				$(this.sound.lst[i]).attr('data-sudfile', i);
+				button += '<button data-sudbutton="' + i + '" class="hidden" type="button">오디오버튼</button>';
+			}
+			$(this.sound.el).append(button);
+		},
+		getSound: function(el, vol) {
+			if (this.sound.bool) {
+				var $el = $(el);
+				var $data = $el.data('sudfile');
+				if (vol) {
+					$el[0].muted = true;
+				} else {
+					$el[0].muted = false;
+				}
+				$('[data-sudbutton="' + $data + '"]').off().on('click', function() {
+					$('[data-sudfile="' + $data + '"]')[0].play();
+				}).click();
+			}
+		},
+		set: function() {
+			var _this = this;
+			this.scoreAnesthFun().score();
+			this.scoreAnesthFun().anesth();
+			return {
+				teethAppend: function() {
+					var html = '';
+					var cls = '';
+					for (var i = 0; i < _this.obj.teethLength; i++) {
+						if (i == 0) {
+							cls = _this.clsFormat(_this.obj.teethEl) + ' ' + _this.clsFormat(_this.cavityClsName);
+						} else {
+							cls = _this.clsFormat(_this.obj.teethEl);
+						}
+						html += '<a href="javascript: ;" class="' + cls + ' tp' + i + '" data-count="' + i + '"></a>';
+					}
+					$(_this.obj.teethWrap).append(html);
+				}
+			};
+		},
+		loopFun: function() {
+			var _this = this;
+			if (!$(this.obj.eye).is('.active')) {
+				$(this.obj.eye).addClass('active');
+			}
+			_this.loop = setInterval(function() {
+				if (_this.count >= (_this.loopCount - 1)) {
+					_this.count = 0;
+				} else {
+					_this.count++;
+				}
+				$(_this.obj.teethEl).removeClass(_this.clsFormat(_this.cavityClsName));
+				$(_this.obj.teethEl + '[data-count=' + _this.count + ']').addClass(_this.clsFormat(_this.cavityClsName));
+			}, 2000 / this.obj.level);
+		},
+		bind: function() {
+			var _this = this;
+			var $data = null;
+			$(_this.obj.teethEl).on({
+				'click touchstart': function() {
+					event.preventDefault();
+					$data = $(this).data('count');
+					if (!$(this).is('.active')) {
+						if ($(this).is(_this.cavityClsName)) {
+							$(this).addClass('active');
+							_this.bool = true;
+						} else {
+							_this.bool = false;
+						}
+						_this.act($(this), $data);
+					}
+				},
+			});
+		},
+		act: function($this, $data) {
+			var _this = this;
+			if (_this.bool) {
+				_this.getSound(_this.sound.lst[1]);
+				this.successCount.push($data);
+				var cnt = 0;
+				$(this.obj.teethEl).each(function() {
+					if (!$(this).is('.active')) {
+						$(this).attr('data-count', cnt);
+						cnt++;
+					} else {
+						$(this).removeAttr('data-count');
+					}
+				});
+				if ($data == 0) {
+					this.count = -1;
+				} else {
+					this.count--;
+				}
+				if (this.successCount.length == this.obj.teethLength) {
+					this.gameFinishFun(this.bool);
+				}
+				this.loopCount--;
+				this.scoreAnesthFun().score();
+				if ($('[data-count]').length == 1) {
+					setInterval(function() {
+						$('[data-count]').toggleClass('cavity');
+					}, 2000 / _this.obj.level);
+					clearInterval(_this.loop);
+				}
+			} else {
+				clearInterval(_this.loop);
+				this.obj.anesth--;
+				$(this.obj.anesthImg + '[data-anesth="' + this.obj.anesth + '"]').addClass('null');
+				if (!this.obj.anesth) {
+					$(_this.obj.teethWrap).addClass('miss');
+					$(_this.obj.eye).addClass('miss');
+					$('.blgm_in').addClass('miss').animate({
+						'callbFunValud': 0
+					}, {
+						'complete': function() {
+							$(_this.obj.popMiss).addClass('active');
+							$(_this.obj.popMissImg).addClass('animated bounceIn');
+						},
+						'duration': 600
+					});
+					setTimeout(function() {
+						_this.gameFinishFun(_this.bool);
+					}, 600);
+					if (this.mobile) {
+						this.getSound(this.sound.lst[2]);
+					}
+				} else {
+					this.actCallb(true).miss();
+				}
+			}
+		},
+		actCallb: function(bool) {
+			var _this = this;
+			return {
+				miss: function() {
+					$(_this.obj.eye).addClass('miss');
+					$(_this.obj.popMiss).addClass('active');
+					$(_this.obj.popMissImg).addClass('animated bounceIn');
+					_this.getSound(_this.sound.lst[0]);
+					setTimeout(function() {
+						$('.blgm_in').removeClass('miss');
+						$(_this.obj.teethWrap).removeClass('miss');
+						$(_this.obj.eye).removeClass('miss');
+						$(_this.obj.popMiss).removeClass('active');
+						$(_this.obj.popMissImg).removeClass('animated bounceIn');
+						if (!_this.gameFinish) {
+							if (_this.count == -1) {
+								_this.count = 0;
+							}
+							_this.loopFun();
+						}
+					}, 2000);
+				},
+			};
+		},
+		scoreAnesthFun: function() {
+			var _this = this;
+			return {
+				score: function() {
+					$(_this.obj.scoreTeethTotal).text(_this.obj.teethLength);
+					$(_this.obj.scoreTeethLeng).text($(_this.obj.teethEl + '.active').length);
+				},
+				anesth: function() {
+					var $el = $(_this.obj.anesthWrap);
+					var html = '';
+					if (!$el.children().length) {
+						for (var i = 0; i < _this.obj.anesth; i++) {
+							html += '<span class="img_anesth anesthImg" data-anesth="' + i + '"></span>';
+						}
+						$el.html(html);
+					}
+				},
+			};
+		},
+		gameFinishFun: function(bool) {
+			clearInterval(this.loop);
+			this.gameFinish = true;
+			this.gamePiontFun();
+			$('#game_2_point').text(this.gamePoint);
+			$('#game_2_next').show();
+		},
+		gamePiontFun: function() {
+			this.getSound(this.sound.lst[2]);
+			this.gamePoint = Math.round((this.successCount.length / this.obj.teethLength) * this.obj.maxGamePoint);
+			Game.point = this.gamePoint;
+		},
+		clsFormat: function(cls) {
+			return cls.replace('.', '');
+		},
+	};
+
+
+	var Game = {
+		callback: function() {}
+	};
+	var crocodile = null;
+	$('#start_game_2').off().on('click', function() {
+		$('#ybm_game_2_ready').hide();
+		crocodile = new Crocodile();
+		crocodile.getSound(crocodile.sound.lst[3]);
+	});
+	//끝났을때
+	//cny 마지막 Next버튼 클릭시 LMS에 값 저장하기
+	$('#game_2_over').off().click(function() {
+		Game.saved = callback(Game.gameCode, Game.schedIndex, Game.seqNo, Game.point);
+		if (Game.saved) {
+			Game.ending();
+		} else {
+			if (confirm("통신상태가 원할하지 못해 게임점수가 저장되지 않았습니다.\n그래도 진행하시겠습니까?")) Game.ending();
+		}
+	});
+	</script>
+</body>
+
+</html>

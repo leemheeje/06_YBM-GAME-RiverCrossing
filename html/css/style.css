@@ -1,0 +1,264 @@
+@charset 'utf-8';
+@import url('./base.css');
+@import url('./animate.css');
+@import url('./plugin/jquery-ui.min.css');
+html, body{height: 100%;}
+*{box-sizing: border-box;}
+/*.tnd_wrap{margin-top: 15px;}
+.teethEl{width: 50px; height: 50px; display: inline-block; border: 1px solid #000; position: relative; transition: all 2.5s; vertical-align: top;}
+.teethEl.cavity.center{height: 80px; transition: all .5s;  background: #ddd;}
+.teethEl.cavity:after{content: none; width: 20px; height: 20px; position: absolute; left: 15px; top: 15px; background: red;}
+.teethEl.active{background: blue !important; height: 1px;}*/
+.blgm_wrap{width: 1280px; padding: 66px 12px 12px 12px; margin: 0 auto; height: 720px; background: #65a9e0 url(../images/breaktime.png) no-repeat left 10px; position: relative; }
+.blgm_in{height: 100%;  background: url(../images/tnbg_02.png) no-repeat left top; position: relative;  overflow: hidden; border-radius: 24px; overflow: hidden;}
+.blgm_in.miss{background-image: url(../images/tnbg_miss.png);}
+.blgm_in:hover .img_cursor{display: block;}
+.tnd_area{ position: absolute; width: 594px; height: 422px; bottom: 0px; left: 50%; margin-left: -297px;}
+//.img_cursor{width: 283px; height: 463px; position: fixed; background: url(../images/cursor.png); left: -9999999em; pointer-events: none; display: none;}
+//.img_cursor.active{background-image: url(../images/cursor_active.png);}
+// .img_cursor{height: 50px; width: 50px; background: red; position: absolute; }
+// .mob  .img_cursor{display: none !important;}
+.tnd_wrap{position: absolute; left: 50px; bottom: 50px; width: 494px; height: 322px;}
+.tnd_wrap.miss{visibility: hidden;}
+.teethEl{width: 47px; height: 60px; display: inline-block; position: relative;background: url(../images/teeth.png) no-repeat left top;}
+.teethEl.cavity{background-image: url(../images/teeth_cav.png);}
+.teethEl.cavity:focus{background-image: url(../images/teeth_cav.png);}
+.teethEl.cavity:after{content: none; width: 20px; height: 20px; position: absolute; left: 15px; top: 15px; background: red;}
+.teethEl.cavity.active,
+.teethEl.active{background-image: url(../images/teeth_cav_active.png);}
+.teethEl.tp0{position: absolute; left: 14px; top: 9px;}
+.teethEl.tp1{position: absolute; left: 49px; top: 62px;}
+.teethEl.tp2{position: absolute; left: 66px; top: 119px;}
+.teethEl.tp3{position: absolute; left: 91px; top: 177px;}
+.teethEl.tp4{position: absolute; left: 133px; top: 225px;}
+.teethEl.tp5{position: absolute; left: 190px; bottom: 10px;}
+.teethEl.tp6{position: absolute; right: 190px; bottom: 10px;}
+.teethEl.tp7{position: absolute; right: 130px; top: 225px;}
+.teethEl.tp8{position: absolute; right: 86px; top: 177px;}
+.teethEl.tp9{position: absolute; right: 63px; top: 119px;}
+.teethEl.tp10{position: absolute; right: 49px; top: 62px;}
+.teethEl.tp11{position: absolute; right: 14px; top: 9px;}
+.score_warp{width: 234px; height: 114px; background: url(../images/score.png) no-repeat left top; position: absolute; left: 30px; top: 27px; overflow: hidden; padding: 0 10px 0 6px;}
+.score_warp .scr_txt{width: 50%; height: 100%; line-height: 96px; float: left; text-align: center; font-size: 60px; font-weight: 800; letter-spacing: -2px;}
+.score_warp .scr_txt.tp01{color: #405099;}
+.score_warp .scr_txt.tp02{color: #fff;}
+.anesth_wrap{overflow: hidden; position: absolute; right: 30px; top: 15px; }
+.anesth_wrap .img_anesth{width: 105px; height: 147px; float: left; background: url(../images/anesth.png)no-repeat left top;}
+.anesth_wrap .img_anesth.null{background-image: url(../images/anesth_null.png)}
+.tnd_eye_area{width: 594px; height: 216px; top: 0; left: 50%; margin-left: -297px; position: absolute;}
+.tnd_eye_area .ey_img{width: 64px; height: 100px; background: url(../images/img_nos.png) no-repeat left top; background-size: 100% auto; position: absolute; left: 394px; top: 95px;}
+.tnd_eye_area .ey_img{
+	-webkit-animation:plu 3.5s linear infinite;
+	-moz-animation:plu 3.5s linear infinite;
+	animation:plu 3.5s linear infinite;
+}
+.tnd_eye_area .ey_img.miss{visibility: hidden;}
+@keyframes plu{
+	0%{width: 64px;}
+	14%{width: 91px;}
+	28%{width: 106px;}
+	40%{width: 124px;}
+	64%{width: 106px;}
+	78%{width: 91px;}
+	100%{width: 64px;}
+}
+.pop_miss{background: rgba(0,0,0,.7); position: absolute; left: 0; top: 0; text-align: center; width: 100%; height: 100%; z-index: 10; display: none;}
+.pop_miss .pop_img{width: 100%; height: 100%; background: no-repeat url(../images/img_miss.png) center center; background-position: center calc(50% + 50px); display: block;}
+.pop_miss.active{display: block;}
+/**/
+.hidden{position: absolute; left: -9999em;}
+.c_red{color: #ed1e79 !important;}
+.bold{font-weight: bold !important;}
+.start_game{
+	width:183px;
+	height:116px;
+	background:url(../images/button_start.png) no-repeat;
+	background-position :0 -124px ;
+	border:0;
+	font-size:0;
+	position:absolute;
+	top:394px;
+	left:700px;
+	cursor:pointer;
+}
+.start_game:hover{
+	background-position :0 0px ;
+}
+#ybm_game_2_ready {
+	position:absolute;
+	width:1256px;
+	height:642px;
+	background:rgba(0,0,0,0.8);
+	top:66px;
+	left:12px;
+	z-index:50;
+	border-radius: 24px;
+    overflow: hidden;
+}
+#ybm_game_2_ready>div{
+	position:relative;
+	width:951px;
+	height:623px;
+	background:url(../images/bg_howto.png) no-repeat;
+	margin:5px auto 0;
+	box-sizing : border-box;
+	padding-top:149px;
+	padding-left:11px;
+	padding-right:40px;
+}
+#ybm_game_2_ready>div>span{
+	font-size : 0;
+}
+#ybm_game_2_ready .guide{	
+	padding:30px 0 10px;
+}
+#ybm_game_2_ready .guide p{
+	box-sizing:border-box;
+	padding-left:66px;
+	position:relative;
+	color:#666666;
+	font-weight:bold;
+	font-size:18px;
+	line-height:1.8
+}
+#ybm_game_2_ready .guide p span {
+	font-weight:normal;
+}
+#ybm_game_2_ready .guide p:before{
+	display:block;
+	content:"";
+	width:5px;
+	height:5px;
+	background:#666;
+	border-radius : 50%;
+	position:absolute;
+	left:50px;
+	top:13px;
+}
+#ybm_game_2_ready .item {
+	
+	box-sizing:border-box;
+	margin-left:48px;
+	width:620px;	
+	font-size:0;
+}
+#ybm_game_2_ready .item li {
+	display : inline-block;
+	width:50%;
+	height:64px;
+	font-weight:bold;
+	color:#000;
+	vertical-align : middle;
+	background:url() no-repeat left center;
+	box-sizing:border-box;
+	padding-left:114px;
+	padding-top:14px;
+	padding-bottom:14px;
+	font-size:24px;
+	font-weight: 800;
+	margin-bottom:16px;
+	
+}
+#ybm_game_2_ready .item{
+	
+}
+#ybm_game_2_ready .item li span{
+	display : block;
+	font-weight:normal;
+	font-size:15px;
+	color:#666;
+	margin-top:4px;
+}
+#ybm_game_2_ready .item li:nth-child(1){
+	background-image: url(../images/howbox01.png);
+}
+#ybm_game_2_ready .item li:nth-child(2){
+	background-image: url(../images/howbox02.png);
+}
+#ybm_game_2_ready .item li:nth-child(3){
+	background-image: url(../images/howbox03.png);
+}
+#ybm_game_2_ready .item li:nth-child(4){
+	background-image: url(../images/howbox04.png);
+}
+.game_over{	
+	position:absolute;
+	width:1254px;
+	height:638px;
+	top:67px;
+	left:11px;
+	background:rgba(0,0,0,0.5);
+	z-index:100;
+	display : none;
+}
+
+#game_2_next >div {
+	width:950px;
+	height:589px;
+	background:url(../images/bg_next.png) no-repeat;
+	box-sizing:border-box;
+	margin:30px 0 0 150px;
+	padding:164px 0 0 0px;
+	position:relative;
+	text-align : center;
+
+}
+#game_2_next >div p {	
+	margin:80px 0 0 0;
+	font-size:24px;
+	color:#5e5e5e;
+	display : inline-block;
+	padding-left:90px;
+	background:url(../images/img_coin.png) no-repeat;
+	height:83px;
+	line-height:1
+}
+#game_2_next >div p em {
+	color:#000;
+	font-style:normal;
+	font-size:32px;
+	vertical-align:-2px;
+	line-height:2;
+	font-weight:bold;
+	
+}
+#game_2_next #game_2_over {
+	width:183px;
+	height:116px;
+	background:url(../images/button_next.png) no-repeat;
+	background-position:0 -120px;
+	border:0;
+	font-size:0;
+	position:absolute;
+	top:400px;
+}
+#game_2_next #game_2_over:hover{
+	background-position:0 0px;
+}
+#ios_audio_button{
+	width:82px;
+	height:78px;
+	background:url(../images/img_vol.png) no-repeat;
+	background-position:-82px 0px;
+	position:absolute;
+	border:0;
+	top:210px;
+	left:35px;
+	font-size:0;
+	z-index: 10;
+}
+#ios_audio_button:active,
+#ios_audio_button:focus{outline: none;}
+#ios_audio_button.off{
+	background-position:0px 0px;
+}
+#point{
+	position: absolute;
+    height: 30px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.9;
+    top: 13px;
+    right: 30px;
+}

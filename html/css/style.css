@@ -10,61 +10,58 @@ html, body{height: 100%;}
 .teethEl.cavity:after{content: none; width: 20px; height: 20px; position: absolute; left: 15px; top: 15px; background: red;}
 .teethEl.active{background: blue !important; height: 1px;}*/
 .blgm_wrap{width: 1280px; padding: 66px 12px 12px 12px; margin: 0 auto; height: 720px; background: #65a9e0 url(../images/breaktime.png) no-repeat left 10px; position: relative; }
-.blgm_in{height: 100%;  background: url(../images/tnbg_02.png) no-repeat left top; position: relative;  overflow: hidden; border-radius: 24px; overflow: hidden;}
-.blgm_in.miss{background-image: url(../images/tnbg_miss.png);}
-.blgm_in:hover .img_cursor{display: block;}
-.tnd_area{ position: absolute; width: 594px; height: 422px; bottom: 0px; left: 50%; margin-left: -297px;}
-//.img_cursor{width: 283px; height: 463px; position: fixed; background: url(../images/cursor.png); left: -9999999em; pointer-events: none; display: none;}
-//.img_cursor.active{background-image: url(../images/cursor_active.png);}
-// .img_cursor{height: 50px; width: 50px; background: red; position: absolute; }
-// .mob  .img_cursor{display: none !important;}
-.tnd_wrap{position: absolute; left: 50px; bottom: 50px; width: 494px; height: 322px;}
-.tnd_wrap.miss{visibility: hidden;}
-.teethEl{width: 47px; height: 60px; display: inline-block; position: relative;background: url(../images/teeth.png) no-repeat left top;}
-.teethEl.cavity{background-image: url(../images/teeth_cav.png);}
-.teethEl.cavity:focus{background-image: url(../images/teeth_cav.png);}
-.teethEl.cavity:after{content: none; width: 20px; height: 20px; position: absolute; left: 15px; top: 15px; background: red;}
-.teethEl.cavity.active,
-.teethEl.active{background-image: url(../images/teeth_cav_active.png);}
-.teethEl.tp0{position: absolute; left: 14px; top: 9px;}
-.teethEl.tp1{position: absolute; left: 49px; top: 62px;}
-.teethEl.tp2{position: absolute; left: 66px; top: 119px;}
-.teethEl.tp3{position: absolute; left: 91px; top: 177px;}
-.teethEl.tp4{position: absolute; left: 133px; top: 225px;}
-.teethEl.tp5{position: absolute; left: 190px; bottom: 10px;}
-.teethEl.tp6{position: absolute; right: 190px; bottom: 10px;}
-.teethEl.tp7{position: absolute; right: 130px; top: 225px;}
-.teethEl.tp8{position: absolute; right: 86px; top: 177px;}
-.teethEl.tp9{position: absolute; right: 63px; top: 119px;}
-.teethEl.tp10{position: absolute; right: 49px; top: 62px;}
-.teethEl.tp11{position: absolute; right: 14px; top: 9px;}
-.score_warp{width: 234px; height: 114px; background: url(../images/score.png) no-repeat left top; position: absolute; left: 30px; top: 27px; overflow: hidden; padding: 0 10px 0 6px;}
-.score_warp .scr_txt{width: 50%; height: 100%; line-height: 96px; float: left; text-align: center; font-size: 60px; font-weight: 800; letter-spacing: -2px;}
-.score_warp .scr_txt.tp01{color: #405099;}
-.score_warp .scr_txt.tp02{color: #fff;}
-.anesth_wrap{overflow: hidden; position: absolute; right: 30px; top: 15px; }
-.anesth_wrap .img_anesth{width: 105px; height: 147px; float: left; background: url(../images/anesth.png)no-repeat left top;}
-.anesth_wrap .img_anesth.null{background-image: url(../images/anesth_null.png)}
-.tnd_eye_area{width: 594px; height: 216px; top: 0; left: 50%; margin-left: -297px; position: absolute;}
-.tnd_eye_area .ey_img{width: 64px; height: 100px; background: url(../images/img_nos.png) no-repeat left top; background-size: 100% auto; position: absolute; left: 394px; top: 95px;}
-.tnd_eye_area .ey_img{
-	-webkit-animation:plu 3.5s linear infinite;
-	-moz-animation:plu 3.5s linear infinite;
-	animation:plu 3.5s linear infinite;
+.blgm_in{height: 100%;  background: url(../images/bg.png) no-repeat left top; position: relative;  overflow: hidden; border-radius: 24px; overflow: hidden;}
+.line_wrap{position: relative; height: 480px; width: 100%; display: block; top: 83px; overflow: hidden; white-space: nowrap;}
+.line_wrap .line_area{position: relative;}
+.line_wrap .line{position: relative; height: 80px; padding-bottom: 15px; font-size: 0;display: inline-block;}
+.line_wrap .line .tp{width: 314px; height: 100%;display: inline-block; vertical-align: middle; text-align: center; position: relative;}
+.line_wrap .line .tp .ico{background: url() no-repeat center bottom; display: inline-block; height: 100%; position: relative; text-align: center; }
+.line_wrap .line .tp.tp01 .ico{background-image: url(../images/te1.png); width: 220px; padding: 0 15px;}
+.line_wrap .line .tp.tp02 .ico{background-image: url(../images/te2.png); width: 168px; padding: 0 15px;}
+.line_wrap .line .tp.tp03 .ico{background-image: url(../images/te3.png); width: 121px;}
+.line_wrap .line .tp.tp04 .ico{background-image: url(../images/te4.png); width: 92px;}
+.line_wrap .line .tp .ico .star{display: inline-block; min-width: 17px; width: 25%; height: 17px; background: url(../images/star.png) no-repeat center center; vertical-align: top; margin-top: 10px;}
+.line_wrap .line .tp.tp03.croc .ico:after,
+.line_wrap .line .tp.tp03.croc .ico:before{content: ''; background: url() no-repeat left top; position: absolute; bottom: 10px;}
+.line_wrap .line .tp.tp03.croc .ico:after{right: -35px; width: 58px; height: 39px; background-image: url(../images/te3_after.png); transform-origin: left center; animation: croc_head 2s;} 
+.line_wrap .line .tp.tp03.croc .ico:before{left: -16px; width: 36px; height: 37px; background-image: url(../images/te3_before.png); transform-origin: right center; animation: croc_tail 2s;} 
+.line_finish{position: absolute; left: 50%; margin-left: -138px; width: 277px; height: 82px; bottom: -25px; text-align: center;}
+.line_finish:after{content: ''; width: 100%; height: 100%; position: absolute; left: 0; top: 0; background: url(../images/ddang.png) no-repeat center bottom; z-index: 1;}
+.line_finish .dangn{width: 85px; height: 103px; background: url(../images/ddang1.png) no-repeat center bottom;  position: absolute; left: 120px; top: -60px;}
+.rabbit{position: absolute; left: 50%; top: 0px; width: 64px; height: 85px; background: url(../images/rat.png) no-repeat center center; z-index: 1;}
+.rabbit[data-rabbit-act='fail']{background-image: url(../images/rat_1.png);}
+.rabbit[data-rabbit-act='jump']{background-image: url(../images/rat_2.png);}
+.contr{position: absolute; left: 0; bottom: 0; width: 100%; height: 104px; padding: 10px 44px;}
+.contr .contr_jump{width: 202px; height: 100%; background: url(../images/contr_jump.png) no-repeat center center; float: left; cursor: pointer;}
+.contr .contr_arrow{float: right; height: 100%;}
+.contr .contr_arrow .left,
+.contr .contr_arrow .right{width: 86px; height: 100%; background: url() no-repeat center center; display: inline-block; vertical-align: middle; margin-left: 30px; cursor: pointer;}
+.contr .contr_arrow .left{background-image: url(../images/contr_left.png);}
+.contr .contr_arrow .right{background-image: url(../images/contr_right.png);}
+.score{width: 189px; height: 59px; background: url(../images/scroe.png) no-repeat left top; position: absolute; left: 121px; top: 17px;}
+.score .in{font-size: 30px; padding-left: 110px; display: block; font-weight: bold; height: 100%; line-height: 48px; text-align: left;}
+.line_wrap .line .tp .fish{position: absolute; left: 0; bottom: 0; width: 47px; height: 42px;}
+.line_wrap .line .tp .fish:after{content: ''; width: 100%; height: 100%; background: url(../images/fss.png) no-repeat center bottom; position: absolute; left: 0; bottom: 0;}
+.line_wrap .line .tp .fish .in{background: url(../images/fs.png) no-repeat left top; position: absolute; left: 0; bottom: 0; width: 100%; height: 100%;}
+/* 애니세이션 */
+@keyframes croc_head{
+	0%{transform: rotate(0deg);}
+	15%{transform: rotate(5deg);}
+	30%{transform: rotate(0deg);}
+	45%{transform: rotate(5deg);}
+	60%{transform: rotate(0deg);}
+	80%{transform: rotate(5deg);}
+	100%{transform: rotate(0deg);}
 }
-.tnd_eye_area .ey_img.miss{visibility: hidden;}
-@keyframes plu{
-	0%{width: 64px;}
-	14%{width: 91px;}
-	28%{width: 106px;}
-	40%{width: 124px;}
-	64%{width: 106px;}
-	78%{width: 91px;}
-	100%{width: 64px;}
+@keyframes croc_tail{
+	0%{transform: rotate(0deg);}
+	15%{transform: rotate(5deg);}
+	30%{transform: rotate(0deg);}
+	45%{transform: rotate(5deg);}
+	60%{transform: rotate(0deg);}
+	80%{transform: rotate(5deg);}
+	100%{transform: rotate(0deg);}
 }
-.pop_miss{background: rgba(0,0,0,.7); position: absolute; left: 0; top: 0; text-align: center; width: 100%; height: 100%; z-index: 10; display: none;}
-.pop_miss .pop_img{width: 100%; height: 100%; background: no-repeat url(../images/img_miss.png) center center; background-position: center calc(50% + 50px); display: block;}
-.pop_miss.active{display: block;}
 /**/
 .hidden{position: absolute; left: -9999em;}
 .c_red{color: #ed1e79 !important;}

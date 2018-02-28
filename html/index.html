@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=1280">
-	<title>Crocodile</title>
+	<title>RiverCrossing</title>
 	<script type="text/javascript">
 	if (location.href.indexOf(':8000') != -1) document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')
 	</script>
@@ -14,20 +14,24 @@
 </head>
 
 <body>
-	<div class="blgm_wrap" style="background: url(./games/game4_BuildBridge/images/img_breaktime_basic-full.png)">
+	<div class="blgm_wrap" style="background: url(./images/img_breaktime_basic-full.png)">
 		<span id="point">333</span>
 		<div class="blgm_in animated">
-			<div class="score_warp">
-				<span class="scr_txt tp01 scoreTeethLeng"></span>
-				<span class="scr_txt tp02 scoreTeethTotal"></span>
+			<div class="rabbit rabbitElment"></div>
+			<div class="line_wrap lineWrap"> </div>
+			<div class="line_finish">
+				<span class="dangn"></span>
 			</div>
-			<div class="tnd_eye_area">
-				<div class="ey_img eyeImg"> </div>
+			<div class="score">
+				<span class="in scoreIn">3</span>
 			</div>
-			<div class="tnd_area tndArea">
-				<div class="tnd_wrap teethWrap"></div>
+			<div class="contr">
+				<div class="contr_jump contrJump"></div>
+				<div class="contr_arrow">
+					<span class="left contrLeft"></span>
+					<span class="right contrRight"></span>
+				</div>
 			</div>
-			<div class="anesth_wrap anesthWrap"></div>
 		</div>
 		<!-- 게임 공통 : S -->
 		<div id="ybm_game_2_ready" class="game_ready">
@@ -55,282 +59,365 @@
 			<span class="pop_img popMissImg"></span>
 		</div>
 	</div>
+	<button class="asdfasdfasdf">asdfasdfasdf</button>
+	<button class="asfasdfasdf" style="position: absolute;">asdfasdfasdf</button>
+
 	<script type="text/javascript">
 	//var gamePath = Game.gamePath[Game.gameCode]; //폴더경로 변경값
-	var Crocodile = function(obj) {
+	var RiverCrossing = function(obj) {
 		this.obj = $.extend(true, {
-			teethWrap: '.teethWrap',
-			teethEl: '.teethEl',
-			teethLength: 12,
-			anesth: 3,
-			level: 7,
 			maxGamePoint: 25,
-			scoreTeethTotal: '.scoreTeethTotal',
-			scoreTeethLeng: '.scoreTeethLeng',
-			anesthWrap: '.anesthWrap',
-			anesthImg: '.anesthImg',
-			imgCursor: '.imgCursor',
-			eye: '.eyeImg',
-			popMiss: '.popMiss',
-			popMissImg: '.popMissImg'
+			lineLength: 6,
+			lineWrap: '.lineWrap',
+			lineArea: '.lineArea',
+			zoType: 4,
+			level: 1,
+			initIntervalDuration: 100,
+			rabbitCellSpacing: 10,
+			contrBtns: { jump: '.contrJump', left: '.contrLeft', right: '.contrRight' },
+			keycode: { jump: 40, left: 37, right: 39 }
 		}, obj);
-		this.cavityClsName = '.cavity';
-		this.count = 0;
-		this.loopCount = this.obj.teethLength;
-		this.successCount = [];
-		this.bool = null;
-		this.gamePiont = 0;
-		this.gameFinish = false;
-		this.sound = {
-			bool: true,
-			el: '.soundPlayLst',
-			onoff: '#ios_audio_button',
-			//물엇을때 , 성공햇을때, 포인트
-			lst: ['.sndLst.tp01', '.sndLst.tp02', '.sndLst.tp03', '.sndLst.tp04'],
+		this.lineSlideLoop = '';
+		this.lineSlideObj = {
+			innerWidth: 1256,
+			dir: true,
+			thisDirXObj: { x: 1, dx: 1 },
+			thisLinePos: [],
+			crrtStepLineElPos: []
 		};
-		this.loop = function() {};
-		this.user();
+		this.rabbitElment = '.rabbitElment';
+		this.rabbitMoveObj = {
+			crrtPosObj: null,
+			crrtMoveAct: 1, //1 : 밑으로 , 2: 왼쪽 , 3: 오른쪽
+			crrtRabbitTrueIdx: null,
+			rabbitInterval: null,
+			moveDownBool: false,
+			downClickLength: 0,
+			step: { down: 80, marginTop: -35, leftright: 30 },
+		};
+		this.fishElemnt = '.fishElemnt';
+		this.fishJumpObj = {
+			loop: null,
+			x: 1,
+			y: 1,
+			dx: 1,
+			dy: 1,
+			gravity: .1
+		};
+		this.lineBunkTimer = null;
 		this.init();
 	};
-	Crocodile.prototype = {
+	RiverCrossing.prototype = {
 		init: function() {
-			this.set().teethAppend();
-			this.setSound();
-			this.loopFun();
+			console.log(this)
+			this.set().lineAppend();
+			//this.set().lineSlide();
+			this.set().rabbitAlign();
+			this.fishJump();
 			this.bind();
-			this.getSound(this.sound.lst[0], true);
-			this.getSound(this.sound.lst[1], true);
-			this.getSound(this.sound.lst[2], true);
 		},
-		user: function() {
-			var user = navigator.userAgent;
-			var userArray = [
-				['mob', user.indexOf('Mobile') != -1],
-				['android', user.indexOf('Android') != -1],
-				['iphone', user.indexOf('iPhone') != -1]
-			];
-			for (var i = 0; i < userArray.length; i++) {
-				if (userArray[i][1]) {
-					$('html').addClass(userArray[i][0]);
-					this.mobile = true;
-				}
-			}
-			if (this.mobile && this.obj.level > 2) {
-				this.obj.level = this.obj.level - 2;
-			}
-		},
-		setSound: function() {
+		fishJump: function() {
 			var _this = this;
-			var button = '';
-			$(this.sound.onoff).off().on('click', function() {
-				$(this).toggleClass('off');
-				if ($(this).is('.off')) {
-					_this.sound.bool = false;
-				} else {
-					_this.sound.bool = true;
-				}
+			$(this.fishElemnt).each(function() {
+				_this.fishJumpInterval($.extend(false, _this.fishJumpObj, {
+					self : $(this),
+					loop: null,
+				x: 1,
+				y: 1,
+				dy: 1,
+				gravity: 1
+				}));
 			});
-			for (var i = 0; i < this.sound.lst.length; i++) {
-				$(this.sound.lst[i]).attr('data-sudfile', i);
-				button += '<button data-sudbutton="' + i + '" class="hidden" type="button">오디오버튼</button>';
-			}
-			$(this.sound.el).append(button);
+			/*_this.fishJumpInterval($.extend(false, _this.fishJumpObj, {
+				self: $(this.fishElemnt+':last'),
+				loop: null,
+				x: 1,
+				y: 1,
+				dy: 1,
+				gravity: 1
+			}));*/
 		},
-		getSound: function(el, vol) {
-			if (this.sound.bool) {
-				var $el = $(el);
-				var $data = $el.data('sudfile');
-				if (vol) {
-					$el[0].muted = true;
-				} else {
-					$el[0].muted = false;
+		fishJumpInterval: function(args) {
+			var _this = this;
+			var args = args;
+			clearInterval(args.loop);
+			args.loop = setInterval(function() {
+				args.x += 12;
+				if(args.x > 570){
+					clearInterval(args.loop);
 				}
-				$('[data-sudbutton="' + $data + '"]').off().on('click', function() {
-					$('[data-sudfile="' + $data + '"]')[0].play();
-				}).click();
-			}
+				args.gravity += args.dy;
+				if (args.y > 20 || args.y < 0) {
+					args.dy = -1;
+				}
+				
+				args.y += args.gravity;
+				args.self.css({
+					'left': args.x,
+					'bottom':args.y
+				});
+				console.log(args.self.css('bottom'))
+				
+			}, 50);
+
 		},
 		set: function() {
 			var _this = this;
-			this.scoreAnesthFun().score();
-			this.scoreAnesthFun().anesth();
 			return {
-				teethAppend: function() {
+				lineAppend: function() {
 					var html = '';
-					var cls = '';
-					for (var i = 0; i < _this.obj.teethLength; i++) {
-						if (i == 0) {
-							cls = _this.clsFormat(_this.obj.teethEl) + ' ' + _this.clsFormat(_this.cavityClsName);
-						} else {
-							cls = _this.clsFormat(_this.obj.teethEl);
-						}
-						html += '<a href="javascript: ;" class="' + cls + ' tp' + i + '" data-count="' + i + '"></a>';
+					var tpArry = [];
+					var gubun = null;
+					var initleft = 0;
+					for (var x = 0; x < _this.obj.zoType; x++) {
+						tpArry.push(x);
 					}
-					$(_this.obj.teethWrap).append(html);
+					for (var z = 0; z < _this.obj.lineLength; z++) {
+						tpArry = shuffle(tpArry);
+						if (z % 2 == 0) {
+							gubun = true;
+							initleft = 0;
+						} else {
+							gubun = false;
+							initleft = '-' + _this.lineSlideObj.innerWidth + 'px';
+						}
+						html += '<div class="line_area ' + _this.strFormat(_this.obj.lineArea) + '" data-dir="' + gubun + '" style = "left : ' + initleft + '">';
+						html += '<div class="line">';
+						for (var d = 0; d < 2; d++) {
+							$.each(tpArry, function(n, v) {
+								var nmv = v + 1;
+								var starhtml = '';
+								for (var i = _this.obj.zoType; i >= nmv; i--) {
+									starhtml += '<i class="star"></i>';
+								}
+								if (nmv == 1) {
+									html += '<span class="tp tp0' + nmv + '"><span class="fish"><span class="in ' + _this.strFormat(_this.fishElemnt) + '"></span></span><span class="ico">' + starhtml + '</span></span>';
+								} else {
+									html += '<span class="tp tp0' + nmv + '"><span class="ico">' + starhtml + '</span></span>';
+								}
+							});
+						}
+						html += '</div>';
+						html += '</div>';
+					}
+					$(_this.obj.lineWrap).append(html);
+
+					function shuffle(o) {
+						for (var j, x, i = o.length; i; j = parseInt(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+						return o;
+					};
+				},
+				lineSlide: function() {
+					$(_this.obj.lineArea).each(function(idx) {
+						var $this = $(this);
+						var $data = $this.data('dir');
+						_this.lineSlideObj.thisLinePos.push([$(this)[0].offsetLeft, $.extend(false, _this.lineSlideObj.thisDirXObj, {
+							x: $data ? -1 : 1,
+							dx: $data ? -1 : 1
+						})]);
+					});
+					clearInterval(_this.lineSlideLoop);
+					$('.asdfasdfasdf').click(function() {
+						clearInterval(_this.lineSlideLoop);
+					});
+					_this.lineSlideLoop = setInterval(function() {
+						_this.set().lineSlideFun();
+					}, _this.obj.initIntervalDuration / _this.obj.level);
+				},
+				lineSlideFun: function() {
+					$(_this.obj.lineArea).each(function(idx) {
+						var $this = $(this);
+						var $data = $this.data('dir');
+						if ($this[0].offsetLeft < -_this.lineSlideObj.innerWidth || $this[0].offsetLeft > 0) {
+							_this.lineSlideObj.thisLinePos[idx][1].x = _this.lineSlideObj.thisLinePos[idx][1].x * -1;
+						}
+						$this.css({
+							'left': $this[0].offsetLeft + _this.lineSlideObj.thisLinePos[idx][1].x
+						});
+					});
+				},
+				rabbitAlign: function() {
+					$(_this.rabbitElment).css({
+						'left': (_this.lineSlideObj.innerWidth / 2) - ($(_this.rabbitElment).width() / 2),
+						'top': 0,
+						'margin-top': 0
+					});
 				}
-			};
-		},
-		loopFun: function() {
-			var _this = this;
-			if (!$(this.obj.eye).is('.active')) {
-				$(this.obj.eye).addClass('active');
 			}
-			_this.loop = setInterval(function() {
-				if (_this.count >= (_this.loopCount - 1)) {
-					_this.count = 0;
-				} else {
-					_this.count++;
-				}
-				$(_this.obj.teethEl).removeClass(_this.clsFormat(_this.cavityClsName));
-				$(_this.obj.teethEl + '[data-count=' + _this.count + ']').addClass(_this.clsFormat(_this.cavityClsName));
-			}, 2000 / this.obj.level);
 		},
 		bind: function() {
 			var _this = this;
-			var $data = null;
-			$(_this.obj.teethEl).on({
-				'click touchstart': function() {
-					event.preventDefault();
-					$data = $(this).data('count');
-					if (!$(this).is('.active')) {
-						if ($(this).is(_this.cavityClsName)) {
-							$(this).addClass('active');
-							_this.bool = true;
-						} else {
-							_this.bool = false;
-						}
-						_this.act($(this), $data);
+			$(document).on({
+				'keyup': function(e) {
+					var gubun = '';
+					var code = e.keyCode;
+					if (code == Number(_this.obj.keycode.jump)) {
+						gubun = 'down';
+					} else if (code == Number(_this.obj.keycode.left)) {
+						gubun = 'left';
+					} else if (code == Number(_this.obj.keycode.right)) {
+						gubun = 'right';
 					}
-				},
+					_this.rabbitMove(gubun);
+				}
 			});
+			$(this.obj.contrBtns.jump).off().on('click', function() { _this.rabbitMove('down') });
+			$(this.obj.contrBtns.left).off().on('click', function() { _this.rabbitMove('left') });
+			$(this.obj.contrBtns.right).off().on('click', function() { _this.rabbitMove('right') });
 		},
-		act: function($this, $data) {
-			var _this = this;
-			if (_this.bool) {
-				_this.getSound(_this.sound.lst[1]);
-				this.successCount.push($data);
-				var cnt = 0;
-				$(this.obj.teethEl).each(function() {
-					if (!$(this).is('.active')) {
-						$(this).attr('data-count', cnt);
-						cnt++;
-					} else {
-						$(this).removeAttr('data-count');
-					}
-				});
-				if ($data == 0) {
-					this.count = -1;
-				} else {
-					this.count--;
-				}
-				if (this.successCount.length == this.obj.teethLength) {
-					this.gameFinishFun(this.bool);
-				}
-				this.loopCount--;
-				this.scoreAnesthFun().score();
-				if ($('[data-count]').length == 1) {
-					setInterval(function() {
-						$('[data-count]').toggleClass('cavity');
-					}, 2000 / _this.obj.level);
-					clearInterval(_this.loop);
-				}
-			} else {
-				clearInterval(_this.loop);
-				this.obj.anesth--;
-				$(this.obj.anesthImg + '[data-anesth="' + this.obj.anesth + '"]').addClass('null');
-				if (!this.obj.anesth) {
-					$(_this.obj.teethWrap).addClass('miss');
-					$(_this.obj.eye).addClass('miss');
-					$('.blgm_in').addClass('miss').animate({
-						'callbFunValud': 0
-					}, {
-						'complete': function() {
-							$(_this.obj.popMiss).addClass('active');
-							$(_this.obj.popMissImg).addClass('animated bounceIn');
-						},
-						'duration': 600
-					});
-					setTimeout(function() {
-						_this.gameFinishFun(_this.bool);
-					}, 600);
-					if (this.mobile) {
-						this.getSound(this.sound.lst[2]);
-					}
-				} else {
-					this.actCallb(true).miss();
-				}
+		rabbitMove: function(gubun) {
+			var cssClass = null;
+			this.rabbitMoveMotion('jump');
+			if (gubun == 'down') {
+				this.rabbitMoveObj.downClickLength++;
+				cssClass = {
+					'top': Number(this.strFormat($(this.rabbitElment).css('top'), 'px')) + this.rabbitMoveObj.step.down,
+					'margin-top': this.rabbitMoveObj.step.marginTop
+				};
+			} else if (this.rabbitMoveObj.downClickLength && (gubun == 'left' || gubun == 'right')) {
+				var leftright = gubun == 'left' ? -this.rabbitMoveObj.step.leftright : this.rabbitMoveObj.step.leftright;
+				cssClass = {
+					'left': Number(this.strFormat($(this.rabbitElment).css('left'), 'px')) + leftright
+				};
+			}
+			if (cssClass) {
+				$(this.rabbitElment).css(cssClass);
+				this.rabbitMoveCrrtPosFun(this.rabbitMoveObj.downClickLength);
+				this.moveGubun();
+				this.lineSlideObj.crrtStepLineElPos = new Array();
 			}
 		},
-		actCallb: function(bool) {
+		rabbitMoveMotion: function(act) {
 			var _this = this;
-			return {
-				miss: function() {
-					$(_this.obj.eye).addClass('miss');
-					$(_this.obj.popMiss).addClass('active');
-					$(_this.obj.popMissImg).addClass('animated bounceIn');
-					_this.getSound(_this.sound.lst[0]);
-					setTimeout(function() {
-						$('.blgm_in').removeClass('miss');
-						$(_this.obj.teethWrap).removeClass('miss');
-						$(_this.obj.eye).removeClass('miss');
-						$(_this.obj.popMiss).removeClass('active');
-						$(_this.obj.popMissImg).removeClass('animated bounceIn');
-						if (!_this.gameFinish) {
-							if (_this.count == -1) {
-								_this.count = 0;
-							}
-							_this.loopFun();
-						}
-					}, 2000);
-				},
+			var duration = 0;
+			switch (act) {
+				case 'jump':
+					duration = 100;
+					break;
+				case 'fail':
+					duration = 500;
+					break;
+			}
+			$(_this.rabbitElment).attr('data-rabbit-act', act);
+			setTimeout(function() {
+				$(_this.rabbitElment).removeAttr('data-rabbit-act');
+			}, duration);
+		},
+		moveGubun: function() {
+			var _this = this;
+			_this.rabbitMoveObj.moveDownBool = false;
+			$.each(this.lineSlideObj.crrtStepLineElPos, function(i, o) {
+				if (_this.rabbitMoveObj.crrtPosObj.left > o.left - _this.obj.rabbitCellSpacing && _this.rabbitMoveObj.crrtPosObj.right < o.right + _this.obj.rabbitCellSpacing) {
+					_this.rabbitMoveObj.moveDownBool = true;
+					_this.rabbitMoveObj.crrtRabbitTrueIdx = i;
+				}
+			});
+			this.moveGubunCallb(this.rabbitMoveObj.downClickLength);
+		},
+		moveGubunCallb: function(cnt) {
+			var _this = this;
+			var cnt = cnt - 1;
+			if (_this.rabbitMoveObj.moveDownBool) {
+				_this.lineBunkFun(cnt, _this.rabbitMoveObj.crrtRabbitTrueIdx);
+				clearInterval(_this.rabbitInterval);
+				_this.rabbitInterval = setInterval(function() {
+					$(_this.rabbitElment).css({
+						'left': $(_this.rabbitElment)[0].offsetLeft + _this.lineSlideObj.thisLinePos[cnt][1].x
+					});
+				}, _this.obj.initIntervalDuration / _this.obj.level);
+				console.log('성공')
+			} else {
+				console.log('실패')
+				_this.rabbitMoveMotion('fail');
+				_this.rabiitReset();
+			}
+		},
+		lineBunkFun: function(lineidx, idx) {
+			var duration = 0;
+			var fun = null;
+			var _this = this;
+			var $target = $(_this.obj.lineArea + ':eq(' + lineidx + ') .tp:eq(' + idx + ')');
+			if ($target.is('.tp03')) {
+				duration = 5000;
+				fun = function() {
+					$target.addClass('croc');
+					_this.rabbitMoveMotion('fail');
+					_this.rabiitReset(function() {
+						setTimeout(function() {
+							$target.removeClass('croc');
+						}, 500);
+					});
+				};
+			} else if ($target.is('.tp02')) {
+				duration = 3000;
+				fun = function() {
+					/* 배가 가라앉는 css 넣어야함 이미지받으면 진행*/
+					$target.addClass('croc');
+					_this.rabbitMoveMotion('fail');
+					_this.rabiitReset(function() {
+						setTimeout(function() {
+							$target.removeClass('croc');
+						}, 500);
+					});
+				};
+			} else {
+				clearTimeout(_this.lineBunkTimer);
+				return;
+			}
+			if (fun) {
+				clearTimeout(_this.lineBunkTimer);
+				_this.lineBunkTimer = setTimeout(fun, duration);
+			}
+		},
+		rabiitReset: function(callback) {
+			this.rabbitMoveObj.downClickLength = 0;
+			this.set().rabbitAlign();
+			clearInterval(this.rabbitInterval);
+			if (typeof callback === 'function') {
+				callback();
+			}
+		},
+		rabbitMoveCrrtPosFun: function(cnt) {
+			var _this = this;
+			var lp = {};
+			$(this.obj.lineArea + ':eq(' + (cnt - 1) + ') .ico').each(function() {
+				var $this = $(this);
+				var $parent = $this.closest(_this.obj.lineArea);
+				lp = _this.childOffsetFun($this, $parent);
+				_this.lineSlideObj.crrtStepLineElPos.push(lp);
+			});
+			this.rabbitMoveObj.crrtPosObj = {
+				left: $(this.rabbitElment)[0].offsetLeft,
+				right: $(this.rabbitElment).width() + $(this.rabbitElment)[0].offsetLeft,
+				top: $(this.rabbitElment)[0].offsetTop,
+				bottom: $(this.rabbitElment).height() + $(this.rabbitElment)[0].offsetTop
 			};
 		},
-		scoreAnesthFun: function() {
-			var _this = this;
+		childOffsetFun: function($this, $parent) {
+			var l = Math.abs($this[0].offsetLeft + Number(this.strFormat($parent.css('left'), 'px')));
 			return {
-				score: function() {
-					$(_this.obj.scoreTeethTotal).text(_this.obj.teethLength);
-					$(_this.obj.scoreTeethLeng).text($(_this.obj.teethEl + '.active').length);
-				},
-				anesth: function() {
-					var $el = $(_this.obj.anesthWrap);
-					var html = '';
-					if (!$el.children().length) {
-						for (var i = 0; i < _this.obj.anesth; i++) {
-							html += '<span class="img_anesth anesthImg" data-anesth="' + i + '"></span>';
-						}
-						$el.html(html);
-					}
-				},
-			};
+				left: l,
+				right: l + $this.width()
+			}
 		},
-		gameFinishFun: function(bool) {
-			clearInterval(this.loop);
-			this.gameFinish = true;
-			this.gamePiontFun();
-			$('#game_2_point').text(this.gamePoint);
-			$('#game_2_next').show();
-		},
-		gamePiontFun: function() {
-			this.getSound(this.sound.lst[2]);
-			this.gamePoint = Math.round((this.successCount.length / this.obj.teethLength) * this.obj.maxGamePoint);
-			Game.point = this.gamePoint;
-		},
-		clsFormat: function(cls) {
-			return cls.replace('.', '');
-		},
+		strFormat: function(cls, nm) {
+			var nmm = nm ? nm : '.';
+			return cls.indexOf(nmm) != -1 ? cls.replace(nmm, '') : '';
+		}
 	};
 
 
 	var Game = {
 		callback: function() {}
 	};
-	var crocodile = null;
+	var rivercrossing = null;
 	$('#start_game_2').off().on('click', function() {
 		$('#ybm_game_2_ready').hide();
-		crocodile = new Crocodile();
-		crocodile.getSound(crocodile.sound.lst[3]);
-	});
+		rivercrossing = new RiverCrossing({
+			maxGamePoint: 25,
+			level: 5
+		});
+	}).click();
 	//끝났을때
 	//cny 마지막 Next버튼 클릭시 LMS에 값 저장하기
 	$('#game_2_over').off().click(function() {

@@ -295,13 +295,11 @@
 					'top': Number(this.strFormat($(this.rabbitElment).css('top'), 'px')) + this.rabbitMoveObj.step.down,
 					'margin-top': this.rabbitMoveObj.step.marginTop
 				};
-				this.rabbitMoveObj.crrtMoveAct = 1; //1 : 밑으로 , 2: 왼쪽 , 3: 오른쪽
 			} else if (this.rabbitMoveObj.downClickLength && (gubun == 'left' || gubun == 'right')) {
 				var leftright = gubun == 'left' ? -this.rabbitMoveObj.step.leftright : this.rabbitMoveObj.step.leftright;
 				cssClass = {
 					'left': Number(this.strFormat($(this.rabbitElment).css('left'), 'px')) + leftright
 				};
-				this.rabbitMoveObj.crrtMoveAct = gubun == 'left' ? 2 : 3;
 			}
 			if (cssClass) {
 				$(this.rabbitElment).css(cssClass);
@@ -348,11 +346,9 @@
 				if (this.starObj.rabbitBalpanOffset().left > this.starObj.thisBalpanElStarOffset()[i].left && this.starObj.rabbitBalpanOffset().right < this.starObj.thisBalpanElStarOffset()[i].right) {
 					var th = this.starObj.thisBalpanEl().star.eq(i);
 					var wd = th.width();
-					if (th.is('.muckum')) {
-						this.starPoint++;
-						$(this.obj.scoreIn).text(this.starPoint);
-						th.addClass('muckum');
-					}
+					th.css('background', 'none');
+					this.starPoint++;
+					$(this.obj.scoreIn).text(this.starPoint);
 				}
 			}
 		},
@@ -375,56 +371,26 @@
 		moveGubun: function() {
 			var _this = this;
 			_this.rabbitMoveObj.moveDownBool = false;
-			if (_this.rabbitMoveObj.crrtMoveAct == 1) {
-				$.each(this.lineSlideObj.crrtStepLineElPos, function(i, o) {
-					if (_this.rabbitMoveObj.crrtPosObj.left > o.left - _this.obj.rabbitCellSpacing && _this.rabbitMoveObj.crrtPosObj.right < o.right + _this.obj.rabbitCellSpacing) {
-						_this.rabbitMoveObj.moveDownBool = true;
-						_this.rabbitMoveObj.crrtRabbitTrueIdx = i;
-					}
-				});
-			} else {
-				_this.rabbitMoveObj.moveDownBool = true;
-			}
+			$.each(this.lineSlideObj.crrtStepLineElPos, function(i, o) {
+				if (_this.rabbitMoveObj.crrtPosObj.left > o.left - _this.obj.rabbitCellSpacing && _this.rabbitMoveObj.crrtPosObj.right < o.right + _this.obj.rabbitCellSpacing) {
+					_this.rabbitMoveObj.moveDownBool = true;
+					_this.rabbitMoveObj.crrtRabbitTrueIdx = i;
+				}
+			});
 		},
 		moveGubunCallb: function(cnt) {
 			var _this = this;
 			var cnt = cnt - 1;
-			var ntm = true;
 			_this.lineSlideObj.thisLineIdx = cnt;
 			if (_this.rabbitMoveObj.moveDownBool) {
 				_this.lineBunkFun(cnt, _this.rabbitMoveObj.crrtRabbitTrueIdx);
 				clearInterval(_this.rabbitInterval);
 				_this.rabbitInterval = setInterval(function() {
-
 					var $left = $(_this.rabbitElment)[0].offsetLeft + _this.lineSlideObj.thisLinePos[cnt][1].x;
 					$(_this.rabbitElment).css({
 						'left': $left
 					});
 					//옆으로갈때 엘리먼트 넘어가면 실패
-					if (ntm) {
-						if (_this.starObj.rabbitBalpanOffset().left < $(_this.rabbitElment).width()) {
-							if (_this.starObj.thisBalpanElIdx >= 0) {
-								var t = _this.lineSlideObj.crrtStepLineElPos[_this.starObj.thisBalpanElIdx - 1];
-								$(_this.rabbitElment).css({
-									'left': ((t.right - t.left) / 2) + t.left + ($(_this.rabbitElment).width() / 2)
-								});
-								_this.rabbitMoveObj.crrtRabbitTrueIdx = _this.starObj.thisBalpanElIdx - 1;
-								ntm = false;
-							}
-						}
-						console.log((_this.starObj.thisBalpanEl().el.width()))
-						console.log((-_this.starObj.rabbitBalpanOffset().right))
-						if ((_this.starObj.thisBalpanEl().el.width() - _this.starObj.rabbitBalpanOffset().right) < $(_this.rabbitElment).width()) {
-							if (_this.starObj.thisBalpanElIdx <= 8) {
-								var t = _this.lineSlideObj.crrtStepLineElPos[_this.starObj.thisBalpanElIdx + 1];
-								$(_this.rabbitElment).css({
-									'left': ((t.right - t.left) / 2) + t.left + ($(_this.rabbitElment).width() / 2)
-								});
-								_this.rabbitMoveObj.crrtRabbitTrueIdx = _this.starObj.thisBalpanElIdx + 1;
-								ntm = false;
-							}
-						}
-					}
 					if ($left > (_this.lineSlideObj.innerWidth - _this.rabbitMoveObj.step.leftright) || $left < _this.rabbitMoveObj.step.leftright) {
 						_this.rabbitMoveObj.moveDownBool = false;
 						_this.moveGubunCallb();
@@ -517,6 +483,7 @@
 				lp = _this.childOffsetFun($this, $parent, $tp);
 				_this.lineSlideObj.crrtStepLineElPos.push(lp);
 			});
+			console.log(_this.lineSlideObj.crrtStepLineElPos)
 			this.rabbitMoveObj.crrtPosObj = {
 				left: $(this.rabbitElment)[0].offsetLeft,
 				right: $(this.rabbitElment).width() + $(this.rabbitElment)[0].offsetLeft,

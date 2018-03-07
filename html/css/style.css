@@ -18,9 +18,17 @@ html, body{height: 100%;}
 .line_wrap .line .tp .ico{background: url() no-repeat center bottom; display: inline-block; height: 100%; position: relative; text-align: center; }
 .line_wrap .line .tp.tp01 .ico{background-image: url(../images/te1.png); width: 220px; padding: 0 15px;}
 .line_wrap .line .tp.tp02 .ico{background-image: url(../images/te2.png); width: 168px; padding: 0 15px;}
+.line_wrap .line .tp.tp02[data-motion="1"] .ico{background-image: url(../images/te2_02.png);}
+.line_wrap .line .tp.tp02[data-motion="2"] .ico{background-image: url(../images/te2_03.png);}
+.line_wrap .line .tp.tp02[data-motion="3"] .ico{background-image: url(../images/te2_04.png);}
 .line_wrap .line .tp.tp03 .ico{background-image: url(../images/te3.png); width: 121px;}
 .line_wrap .line .tp.tp04 .ico{background-image: url(../images/te4.png); width: 92px;}
 .line_wrap .line .tp .ico .star{display: inline-block; min-width: 17px; width: 25%; height: 17px; background: url(../images/star.png) no-repeat center center; vertical-align: top; margin-top: 10px;}
+.line_wrap .line .tp.tp01 .ico .star {width: 25%;}
+.line_wrap .line .tp.tp02 .ico .star {width: 33.33%;}
+.line_wrap .line .tp.tp03 .ico .star {width: 50%;}
+.line_wrap .line .tp.tp04 .ico .star {width: 100%;}
+.line_wrap .line .tp .ico .star.muckum{background: none;}
 .line_wrap .line .tp.tp03.croc .ico:after,
 .line_wrap .line .tp.tp03.croc .ico:before{content: ''; background: url() no-repeat left top; position: absolute; bottom: 10px;}
 .line_wrap .line .tp.tp03.croc .ico:after{right: -35px; width: 58px; height: 39px; background-image: url(../images/te3_after.png); transform-origin: left center; animation: croc_head 2s;} 
@@ -28,9 +36,10 @@ html, body{height: 100%;}
 .line_finish{position: absolute; left: 50%; margin-left: -138px; width: 277px; height: 82px; bottom: -25px; text-align: center;}
 .line_finish:after{content: ''; width: 100%; height: 100%; position: absolute; left: 0; top: 0; background: url(../images/ddang.png) no-repeat center bottom; z-index: 1;}
 .line_finish .dangn{width: 85px; height: 103px; background: url(../images/ddang1.png) no-repeat center bottom;  position: absolute; left: 120px; top: -60px;}
-.rabbit{position: absolute; left: 50%; top: 0px; width: 64px; height: 85px; background: url(../images/rat.png) no-repeat center center; z-index: 1;}
-.rabbit[data-rabbit-act='fail']{background-image: url(../images/rat_1.png);}
-.rabbit[data-rabbit-act='jump']{background-image: url(../images/rat_2.png);}
+.rabbit{position: absolute; left: 50%; top: 0px; width: 10px; height: 85px; z-index: 1;}
+.rabbit:after{content: ''; position: absolute; left: -27px; top: 0; height: 100%; width: 64px; background: url(../images/rat.png) no-repeat center center;}
+.rabbit[data-rabbit-act='fail']:after{background-image: url(../images/rat_1.png);}
+.rabbit[data-rabbit-act='jump']:after{background-image: url(../images/rat_2.png);}
 .contr{position: absolute; left: 0; bottom: 0; width: 100%; height: 104px; padding: 10px 44px;}
 .contr .contr_jump{width: 202px; height: 100%; background: url(../images/contr_jump.png) no-repeat center center; float: left; cursor: pointer;}
 .contr .contr_arrow{float: right; height: 100%;}
@@ -43,6 +52,13 @@ html, body{height: 100%;}
 .line_wrap .line .tp .fish{position: absolute; left: 0; bottom: 0; width: 47px; height: 42px;}
 .line_wrap .line .tp .fish:after{content: ''; width: 100%; height: 100%; background: url(../images/fss.png) no-repeat center bottom; position: absolute; left: 0; bottom: 0;}
 .line_wrap .line .tp .fish .in{background: url(../images/fs.png) no-repeat left top; position: absolute; left: 0; bottom: 0; width: 100%; height: 100%;}
+.pop_a{position: absolute; left: 0; top: 0; z-index: 10; width: 100%; height: 100%; display: none;}
+.pop_a.popMiss{background: rgba(46,52,51,.7) url(../images/miss.png) no-repeat center center;}
+.pop_a.popCong{background: rgba(108,46,22,.7) url(../images/cong.png) no-repeat center center;}
+.rabbit_moksum{position: absolute; right: 35px; top: 0; }
+.rabbit_moksum .rabbit_moksum_cnt{display: inline-block; vertical-align: middle; width: 48px; height: 75px; background: no-repeat center center;}
+.rabbit_moksum .rabbit_moksum_cnt[data-on="on"]{background-image: url(../images/muy.png);}
+.rabbit_moksum .rabbit_moksum_cnt[data-on="off"]{background-image: url(../images/muy2.png);}
 /* 애니세이션 */
 @keyframes croc_head{
 	0%{transform: rotate(0deg);}

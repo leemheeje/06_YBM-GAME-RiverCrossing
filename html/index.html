@@ -23,7 +23,7 @@
 				<span class="dangn"></span>
 			</div>
 			<div class="score">
-				<span class="in scoreIn">3</span>
+				<span class="in scoreIn">0</span>
 			</div>
 			<div class="contr">
 				<div class="contr_jump contrJump"></div>
@@ -32,6 +32,9 @@
 					<span class="right contrRight"></span>
 				</div>
 			</div>
+			<div class="rabbit_moksum rabbitMocksumCnt"></div>
+			<div class="pop_a popMiss"> </div>
+			<div class="pop_a popCong"> </div>
 		</div>
 		<!-- 게임 공통 : S -->
 		<div id="ybm_game_2_ready" class="game_ready">
@@ -55,13 +58,9 @@
 			<audio src="./sound/start.mp3" class="sndLst tp04"></audio>
 		</div>
 		<button id="ios_audio_button" class="">사운드 온오프</button>
-		<div class="pop_miss popMiss">
-			<span class="pop_img popMissImg"></span>
-		</div>
 	</div>
 	<button class="asdfasdfasdf">asdfasdfasdf</button>
 	<button class="asfasdfasdf" style="position: absolute;">asdfasdfasdf</button>
-
 	<script type="text/javascript">
 	//var gamePath = Game.gamePath[Game.gameCode]; //폴더경로 변경값
 	var RiverCrossing = function(obj) {
@@ -71,19 +70,27 @@
 			lineWrap: '.lineWrap',
 			lineArea: '.lineArea',
 			zoType: 4,
-			level: 1,
+			level: 5,
+			rabbitMocksum: 3,
 			initIntervalDuration: 100,
 			rabbitCellSpacing: 10,
+			popMiss: '.popMiss',
+			popCong: '.popCong',
+			scoreIn: '.scoreIn',
+			rabbitMocksumCnt: '.rabbitMocksumCnt',
 			contrBtns: { jump: '.contrJump', left: '.contrLeft', right: '.contrRight' },
 			keycode: { jump: 40, left: 37, right: 39 }
 		}, obj);
+		this.starPoint = 0;
+		this.popTimer = null;
 		this.lineSlideLoop = '';
 		this.lineSlideObj = {
 			innerWidth: 1256,
 			dir: true,
 			thisDirXObj: { x: 1, dx: 1 },
 			thisLinePos: [],
-			crrtStepLineElPos: []
+			crrtStepLineElPos: [],
+			thisLineIdx: 0,
 		};
 		this.rabbitElment = '.rabbitElment';
 		this.rabbitMoveObj = {
@@ -93,7 +100,7 @@
 			rabbitInterval: null,
 			moveDownBool: false,
 			downClickLength: 0,
-			step: { down: 80, marginTop: -35, leftright: 30 },
+			step: { down: 80, marginTop: -35, leftright: 34 },
 		};
 		this.fishElemnt = '.fishElemnt';
 		this.fishJumpObj = {
@@ -104,38 +111,50 @@
 			dy: 1,
 			gravity: .1
 		};
+		this.rabbitMocksum = 0;
 		this.lineBunkTimer = null;
+		this.sound = {
+			bool: true,
+			el: '.soundPlayLst',
+			onoff: '#ios_audio_button',
+			//물엇을때 , 성공햇을때, 포인트
+			lst: ['.sndLst.tp01', '.sndLst.tp02', '.sndLst.tp03'],
+		};
 		this.init();
 	};
 	RiverCrossing.prototype = {
 		init: function() {
 			console.log(this)
 			this.set().lineAppend();
-			//this.set().lineSlide();
+			this.set().lineSlide();
 			this.set().rabbitAlign();
+			this.rabbitMocksumSet();
 			this.fishJump();
 			this.bind();
+		},
+		rabbitMocksumSet: function() {
+			var html = '';
+			for (var i = this.obj.rabbitMocksum; i > 0; i--) {
+				var gubun = 'on';
+				html += '<span class="rabbit_moksum_cnt" data-on="' + gubun + '"></span>';
+			}
+			$(this.obj.rabbitMocksumCnt).html(html);
+		},
+		rabbitMocksumMinn: function() {
+			$(this.obj.rabbitMocksumCnt + ' [data-on="on"]:last').attr('data-on', 'off');
 		},
 		fishJump: function() {
 			var _this = this;
 			$(this.fishElemnt).each(function() {
 				_this.fishJumpInterval($.extend(false, _this.fishJumpObj, {
-					self : $(this),
+					self: $(this),
 					loop: null,
-				x: 1,
-				y: 1,
-				dy: 1,
-				gravity: 1
+					x: 1,
+					y: 1,
+					dy: 1,
+					gravity: 1
 				}));
 			});
-			/*_this.fishJumpInterval($.extend(false, _this.fishJumpObj, {
-				self: $(this.fishElemnt+':last'),
-				loop: null,
-				x: 1,
-				y: 1,
-				dy: 1,
-				gravity: 1
-			}));*/
 		},
 		fishJumpInterval: function(args) {
 			var _this = this;
@@ -143,23 +162,21 @@
 			clearInterval(args.loop);
 			args.loop = setInterval(function() {
 				args.x += 12;
-				if(args.x > 570){
+				if (args.x > 570) {
 					clearInterval(args.loop);
 				}
 				args.gravity += args.dy;
 				if (args.y > 20 || args.y < 0) {
 					args.dy = -1;
 				}
-				
+
 				args.y += args.gravity;
 				args.self.css({
 					'left': args.x,
-					'bottom':args.y
+					'bottom': args.y
 				});
-				console.log(args.self.css('bottom'))
-				
-			}, 50);
 
+			}, 50);
 		},
 		set: function() {
 			var _this = this;
@@ -190,7 +207,8 @@
 								for (var i = _this.obj.zoType; i >= nmv; i--) {
 									starhtml += '<i class="star"></i>';
 								}
-								if (nmv == 1) {
+								//if (nmv == 1) {
+								if (false) {
 									html += '<span class="tp tp0' + nmv + '"><span class="fish"><span class="in ' + _this.strFormat(_this.fishElemnt) + '"></span></span><span class="ico">' + starhtml + '</span></span>';
 								} else {
 									html += '<span class="tp tp0' + nmv + '"><span class="ico">' + starhtml + '</span></span>';
@@ -219,6 +237,9 @@
 					clearInterval(_this.lineSlideLoop);
 					$('.asdfasdfasdf').click(function() {
 						clearInterval(_this.lineSlideLoop);
+					});
+					$('.asfasdfasdf').click(function() {
+						_this.set().lineSlide();
 					});
 					_this.lineSlideLoop = setInterval(function() {
 						_this.set().lineSlideFun();
@@ -274,17 +295,65 @@
 					'top': Number(this.strFormat($(this.rabbitElment).css('top'), 'px')) + this.rabbitMoveObj.step.down,
 					'margin-top': this.rabbitMoveObj.step.marginTop
 				};
+				this.rabbitMoveObj.crrtMoveAct = 1; //1 : 밑으로 , 2: 왼쪽 , 3: 오른쪽
 			} else if (this.rabbitMoveObj.downClickLength && (gubun == 'left' || gubun == 'right')) {
 				var leftright = gubun == 'left' ? -this.rabbitMoveObj.step.leftright : this.rabbitMoveObj.step.leftright;
 				cssClass = {
 					'left': Number(this.strFormat($(this.rabbitElment).css('left'), 'px')) + leftright
 				};
+				this.rabbitMoveObj.crrtMoveAct = gubun == 'left' ? 2 : 3;
 			}
 			if (cssClass) {
 				$(this.rabbitElment).css(cssClass);
 				this.rabbitMoveCrrtPosFun(this.rabbitMoveObj.downClickLength);
 				this.moveGubun();
-				this.lineSlideObj.crrtStepLineElPos = new Array();
+				this.moveGubunCallb(this.rabbitMoveObj.downClickLength);
+				this.starMuckgiInit();
+			}
+		},
+		starMuckgiInit: function() {
+			var _this = this;
+			this.starObj = {
+				rabbitOffset: _this.rabbitMoveObj.crrtPosObj,
+				thisBalpanElIdx: _this.rabbitMoveObj.crrtRabbitTrueIdx,
+				thisBalpanOffset: _this.lineSlideObj.crrtStepLineElPos[_this.rabbitMoveObj.crrtRabbitTrueIdx],
+				thisLineIdx: _this.lineSlideObj.thisLineIdx,
+				rabbitBalpanOffset: function() {
+					var l = (_this.starObj.rabbitOffset.left - _this.starObj.thisBalpanOffset.left);
+					return {
+						left: l,
+						right: l + $(_this.rabbitElment).width()
+					}
+				},
+				thisBalpanEl: function() {
+					var $tar = $(_this.obj.lineArea + ':eq(' + _this.lineSlideObj.thisLineIdx + ') .tp:eq(' + _this.rabbitMoveObj.crrtRabbitTrueIdx + ')');
+					return {
+						el: $tar,
+						star: $tar.find('.star'),
+						starLeng: $tar.find('.star').length
+					};
+				},
+				thisBalpanElStarOffset: function() {
+					var ar = [];
+					_this.starObj.thisBalpanEl().star.each(function() {
+						ar.push({
+							left: $(this)[0].offsetLeft,
+							right: $(this)[0].offsetLeft + $(this).width()
+						});
+					});
+					return ar;
+				},
+			};
+			for (var i = 0; i < this.starObj.thisBalpanElStarOffset().length; i++) {
+				if (this.starObj.rabbitBalpanOffset().left > this.starObj.thisBalpanElStarOffset()[i].left && this.starObj.rabbitBalpanOffset().right < this.starObj.thisBalpanElStarOffset()[i].right) {
+					var th = this.starObj.thisBalpanEl().star.eq(i);
+					var wd = th.width();
+					if (th.is('.muckum')) {
+						this.starPoint++;
+						$(this.obj.scoreIn).text(this.starPoint);
+						th.addClass('muckum');
+					}
+				}
 			}
 		},
 		rabbitMoveMotion: function(act) {
@@ -306,24 +375,60 @@
 		moveGubun: function() {
 			var _this = this;
 			_this.rabbitMoveObj.moveDownBool = false;
-			$.each(this.lineSlideObj.crrtStepLineElPos, function(i, o) {
-				if (_this.rabbitMoveObj.crrtPosObj.left > o.left - _this.obj.rabbitCellSpacing && _this.rabbitMoveObj.crrtPosObj.right < o.right + _this.obj.rabbitCellSpacing) {
-					_this.rabbitMoveObj.moveDownBool = true;
-					_this.rabbitMoveObj.crrtRabbitTrueIdx = i;
-				}
-			});
-			this.moveGubunCallb(this.rabbitMoveObj.downClickLength);
+			if (_this.rabbitMoveObj.crrtMoveAct == 1) {
+				$.each(this.lineSlideObj.crrtStepLineElPos, function(i, o) {
+					if (_this.rabbitMoveObj.crrtPosObj.left > o.left - _this.obj.rabbitCellSpacing && _this.rabbitMoveObj.crrtPosObj.right < o.right + _this.obj.rabbitCellSpacing) {
+						_this.rabbitMoveObj.moveDownBool = true;
+						_this.rabbitMoveObj.crrtRabbitTrueIdx = i;
+					}
+				});
+			} else {
+				_this.rabbitMoveObj.moveDownBool = true;
+			}
 		},
 		moveGubunCallb: function(cnt) {
 			var _this = this;
 			var cnt = cnt - 1;
+			var ntm = true;
+			_this.lineSlideObj.thisLineIdx = cnt;
 			if (_this.rabbitMoveObj.moveDownBool) {
 				_this.lineBunkFun(cnt, _this.rabbitMoveObj.crrtRabbitTrueIdx);
 				clearInterval(_this.rabbitInterval);
 				_this.rabbitInterval = setInterval(function() {
+
+					var $left = $(_this.rabbitElment)[0].offsetLeft + _this.lineSlideObj.thisLinePos[cnt][1].x;
 					$(_this.rabbitElment).css({
-						'left': $(_this.rabbitElment)[0].offsetLeft + _this.lineSlideObj.thisLinePos[cnt][1].x
+						'left': $left
 					});
+					//옆으로갈때 엘리먼트 넘어가면 실패
+					if (ntm) {
+						if (_this.starObj.rabbitBalpanOffset().left < $(_this.rabbitElment).width()) {
+							if (_this.starObj.thisBalpanElIdx >= 0) {
+								var t = _this.lineSlideObj.crrtStepLineElPos[_this.starObj.thisBalpanElIdx - 1];
+								$(_this.rabbitElment).css({
+									'left': ((t.right - t.left) / 2) + t.left + ($(_this.rabbitElment).width() / 2)
+								});
+								_this.rabbitMoveObj.crrtRabbitTrueIdx = _this.starObj.thisBalpanElIdx - 1;
+								ntm = false;
+							}
+						}
+						console.log((_this.starObj.thisBalpanEl().el.width()))
+						console.log((-_this.starObj.rabbitBalpanOffset().right))
+						if ((_this.starObj.thisBalpanEl().el.width() - _this.starObj.rabbitBalpanOffset().right) < $(_this.rabbitElment).width()) {
+							if (_this.starObj.thisBalpanElIdx <= 8) {
+								var t = _this.lineSlideObj.crrtStepLineElPos[_this.starObj.thisBalpanElIdx + 1];
+								$(_this.rabbitElment).css({
+									'left': ((t.right - t.left) / 2) + t.left + ($(_this.rabbitElment).width() / 2)
+								});
+								_this.rabbitMoveObj.crrtRabbitTrueIdx = _this.starObj.thisBalpanElIdx + 1;
+								ntm = false;
+							}
+						}
+					}
+					if ($left > (_this.lineSlideObj.innerWidth - _this.rabbitMoveObj.step.leftright) || $left < _this.rabbitMoveObj.step.leftright) {
+						_this.rabbitMoveObj.moveDownBool = false;
+						_this.moveGubunCallb();
+					}
 				}, _this.obj.initIntervalDuration / _this.obj.level);
 				console.log('성공')
 			} else {
@@ -337,6 +442,7 @@
 			var fun = null;
 			var _this = this;
 			var $target = $(_this.obj.lineArea + ':eq(' + lineidx + ') .tp:eq(' + idx + ')');
+			clearTimeout(_this.lineBunkTimer);
 			if ($target.is('.tp03')) {
 				duration = 5000;
 				fun = function() {
@@ -350,8 +456,17 @@
 				};
 			} else if ($target.is('.tp02')) {
 				duration = 3000;
+				var imgl = 3;
+				var cnt = 0;
+				var time = setInterval(function() {
+					cnt++;
+					$target.attr('data-motion', cnt);
+					if (cnt == imgl) {
+						clearInterval(time);
+						$target.removeAttr('data-motion');
+					}
+				}, duration / imgl);
 				fun = function() {
-					/* 배가 가라앉는 css 넣어야함 이미지받으면 진행*/
 					$target.addClass('croc');
 					_this.rabbitMoveMotion('fail');
 					_this.rabiitReset(function() {
@@ -360,9 +475,6 @@
 						}, 500);
 					});
 				};
-			} else {
-				clearTimeout(_this.lineBunkTimer);
-				return;
 			}
 			if (fun) {
 				clearTimeout(_this.lineBunkTimer);
@@ -370,20 +482,39 @@
 			}
 		},
 		rabiitReset: function(callback) {
+			this.rabbitMocksumMinn();
+			this.rabbitMocksum++;
 			this.rabbitMoveObj.downClickLength = 0;
 			this.set().rabbitAlign();
 			clearInterval(this.rabbitInterval);
+			clearTimeout(this.lineBunkTimer);
 			if (typeof callback === 'function') {
 				callback();
 			}
+			if (this.obj.rabbitMocksum == this.rabbitMocksum) {
+				clearInterval(this.lineSlideLoop);
+				this.gameFinishFun();
+				this.rabbitMocksumSet();
+				return;
+			}
+			this.missCongPopFun($(this.obj.popMiss));
+		},
+		missCongPopFun: function($pop, time) {
+			clearTimeout(this.popTimer);
+			$pop.show();
+			this.popTimer = setTimeout(function() {
+				$pop.hide();
+			}, time ? time : 1000);
 		},
 		rabbitMoveCrrtPosFun: function(cnt) {
 			var _this = this;
 			var lp = {};
+			_this.lineSlideObj.crrtStepLineElPos = [];
 			$(this.obj.lineArea + ':eq(' + (cnt - 1) + ') .ico').each(function() {
 				var $this = $(this);
 				var $parent = $this.closest(_this.obj.lineArea);
-				lp = _this.childOffsetFun($this, $parent);
+				var $tp = $this.closest('.tp');
+				lp = _this.childOffsetFun($this, $parent, $tp);
 				_this.lineSlideObj.crrtStepLineElPos.push(lp);
 			});
 			this.rabbitMoveObj.crrtPosObj = {
@@ -393,8 +524,8 @@
 				bottom: $(this.rabbitElment).height() + $(this.rabbitElment)[0].offsetTop
 			};
 		},
-		childOffsetFun: function($this, $parent) {
-			var l = Math.abs($this[0].offsetLeft + Number(this.strFormat($parent.css('left'), 'px')));
+		childOffsetFun: function($this, $parent, $tp) {
+			var l = Math.abs($tp[0].offsetLeft + $this[0].offsetLeft + Number(this.strFormat($parent.css('left'), 'px')));
 			return {
 				left: l,
 				right: l + $this.width()
@@ -403,7 +534,45 @@
 		strFormat: function(cls, nm) {
 			var nmm = nm ? nm : '.';
 			return cls.indexOf(nmm) != -1 ? cls.replace(nmm, '') : '';
-		}
+		},
+		gameFinishFun: function(bool) {
+			this.gameFinish = true;
+			this.gamePiontFun();
+			$('#game_2_point').text(this.gamePoint);
+			$('#game_2_next').show();
+		},
+		gamePiontFun: function() {
+			this.getSound(this.sound.lst[2]);
+			this.gamePoint = Math.floor((this.ballScore * this.obj.maxGamePoint) / (this.ballCount * 100));
+			Game.point = this.gamePoint;
+		},
+		setSound: function() {
+			var _this = this;
+			var button = '';
+			$(this.sound.onoff).off().on('click', function() {
+				$(this).toggleClass('off');
+				if ($(this).is('.off')) {
+					_this.sound.bool = false;
+				} else {
+					_this.sound.bool = true;
+				}
+			});
+			for (var i = 0; i < this.sound.lst.length; i++) {
+				$(this.sound.lst[i]).attr('data-sudfile', i);
+				button += '<button data-sudbutton="' + i + '" class="hidden" type="button">오디오버튼</button>';
+			}
+			$(this.sound.el).append(button);
+		},
+		getSound: function(el) {
+			if (this.sound.bool) {
+				var $el = $(el);
+				var $data = $el.data('sudfile');
+				$el[0].muted = false;
+				$('[data-sudbutton="' + $data + '"]').off().on('click', function() {
+					$('[data-sudfile="' + $data + '"]')[0].play();
+				}).click();
+			}
+		},
 	};
 
 
@@ -415,7 +584,7 @@
 		$('#ybm_game_2_ready').hide();
 		rivercrossing = new RiverCrossing({
 			maxGamePoint: 25,
-			level: 5
+			// level: 10
 		});
 	}).click();
 	//끝났을때

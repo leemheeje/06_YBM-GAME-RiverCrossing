@@ -58,27 +58,27 @@
 		</div>
 		<button id="ios_audio_button" class="">사운드 온오프</button>
 	</div>
-	<button class="asdfasdfasdf">asdfasdfasdf</button>
-	<button class="asfasdfasdf" style="position: absolute;">asdfasdfasdf</button>
+	<!-- <button class="asdfasdfasdf">asdfasdfasdf</button>
+	<button class="asfasdfasdf" style="position: absolute;">asdfasdfasdf</button> -->
 	<script type="text/javascript">
 	//var gamePath = Game.gamePath[Game.gameCode]; //폴더경로 변경값
 	var RiverCrossing = function(obj) {
-		this.obj = $.extend(true, {
-			maxGamePoint: 25,
-			lineLength: 6,
-			lineWrap: '.lineWrap',
-			lineArea: '.lineArea',
-			zoType: 4,
-			level: 5,
-			rabbitMocksum: 3,
-			initIntervalDuration: 100,
+		this.obj = $.extend(true, { //병합되는 객체입니다. 호출되는 함수에서 변경합니다.
+			maxGamePoint: 25, //Game.point
+			lineLength: 6, //라인갯수 기획상 6개라서 6개. 변경하려면 css도 수정해야함 높이값
+			lineWrap: '.lineWrap', //라인전체를 감싸는 wrap class name
+			lineArea: '.lineArea',//라인영역 class name
+			zoType: 4, //한라인안에 오브젝트 타입. tp01 : 통나무 , tp02 : 종이배 , tp03: 악어, tp04:작은통나무
+			level: 5, //라인의 움직이는 스피드 조정 높을수록 빠르게. 
+			rabbitMocksum: 3, //토기의 목숨갯수
+			initIntervalDuration: 100, //레벨로 인하여 타임을 측정하는 duraition ==> initIntervalDuration/ level
 			rabbitCellSpacing: 10,
-			popMiss: '.popMiss',
-			popCong: '.popCong',
-			scoreIn: '.scoreIn',
-			rabbitMocksumCnt: '.rabbitMocksumCnt',
-			contrBtns: { jump: '.contrJump', left: '.contrLeft', right: '.contrRight' },
-			keycode: { jump: 40, left: 37, right: 39 }
+			popMiss: '.popMiss',//미쓰 마크업 
+			popCong: '.popCong',//성공 마크업 
+			scoreIn: '.scoreIn',//스코어 동전 마크업 
+			rabbitMocksumCnt: '.rabbitMocksumCnt',//토끼 목숨 표시하는 마크업
+			contrBtns: { jump: '.contrJump', left: '.contrLeft', right: '.contrRight' }, //컨트롤 버튼 클랙스네밍ㅁ
+			keycode: { jump: 40, left: 37, right: 39 } //모바일 키코드
 		}, obj);
 		this.starPoint = 0;
 		this.gameFinishBool = false;
@@ -89,7 +89,7 @@
 			dir: true,
 			thisDirXObj: { x: 1, dx: 1 },
 			thisLinePos: [],
-			crrtStepLineElPos: [],
+			crrtStepLineElPos: [], //현재 토끼가 올라와있는 라인의 요소들의 좌표값 left, right (down점프 할때마다 새로 변경됨)
 			thisLineIdx: 0,
 		};
 		this.rabbitElment = '.rabbitElment';
@@ -100,7 +100,7 @@
 			crrtRabbitTrueIdx: null,
 			rabbitInterval: null,
 			moveDownBool: false,
-			downClickLength: 0,
+			downClickLength: 0, //현재 토끼가 올라와있는 라인의 인덱스값.
 			step: { down: 80, marginTop: -35, leftright: 34 },
 		};
 		this.fishElemnt = '.fishElemnt';
@@ -226,7 +226,6 @@
 					var tpArry = [];
 					var gubun = null;
 					var initleft = 0;
-					var asdf = true;
 					for (var x = 0; x < _this.obj.zoType; x++) {
 						tpArry.push(x);
 					}
@@ -249,9 +248,7 @@
 									starhtml += '<i class="star"></i>';
 								}
 								if (nmv == 4) {//tp04 에만 물고기추가
-									//if (asdf) {
 									html += '<span class="tp tp0' + nmv + '"><span class="fish ready"><span class="in rotate ' + _this.strFormat(_this.fishElemnt) + '"></span></span><span class="ico">' + starhtml + '</span></span>';
-									asdf = false;
 								} else {
 									html += '<span class="tp tp0' + nmv + '"><span class="ico">' + starhtml + '</span></span>';
 								}
@@ -277,7 +274,7 @@
 						})]);
 					});
 					clearInterval(_this.lineSlideLoop);
-					$('.asdfasdfasdf').click(function() {
+					/*$('.asdfasdfasdf').click(function() {
 						tetetetetettetete = 1;
 						clearInterval(_this.lineSlideLoop);
 						clearInterval(_this.rabbitInterval);
@@ -287,7 +284,7 @@
 							_this.set().lineSlide();
 							tetetetetettetete = 0;
 						}
-					});
+					});*/
 					_this.lineSlideLoop = setInterval(function() {
 						_this.set().lineSlideFun();
 					}, _this.obj.initIntervalDuration / _this.obj.level);
@@ -654,7 +651,7 @@
 		$('#ybm_game_2_ready').hide();
 		rivercrossing = new RiverCrossing({
 			maxGamePoint: 25,
-			level: 8,
+			level: 10
 		});
 	}).click();
 	//끝났을때

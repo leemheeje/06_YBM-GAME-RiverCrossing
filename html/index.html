@@ -15,7 +15,6 @@
 
 <body>
 	<div class="blgm_wrap" style="background: url(./images/img_breaktime_basic-full.png)">
-		<span id="point">333</span>
 		<div class="blgm_in animated">
 			<div class="rabbit rabbitElment"></div>
 			<div class="line_wrap lineWrap"> </div>
@@ -82,6 +81,7 @@
 			keycode: { jump: 40, left: 37, right: 39 }
 		}, obj);
 		this.starPoint = 0;
+		this.gameFinishBool = false;
 		this.popTimer = null;
 		this.lineSlideLoop = '';
 		this.lineSlideObj = {
@@ -93,6 +93,7 @@
 			thisLineIdx: 0,
 		};
 		this.rabbitElment = '.rabbitElment';
+		this.rabbitElmentLeft = 0;
 		this.rabbitMoveObj = {
 			crrtPosObj: null,
 			crrtMoveAct: 1, //1 : 밑으로 , 2: 왼쪽 , 3: 오른쪽
@@ -111,6 +112,7 @@
 			dy: 1,
 			gravity: .1
 		};
+		this.fishLenLoopArry = null;
 		this.rabbitMocksum = 0;
 		this.lineBunkTimer = null;
 		this.sound = {
@@ -124,13 +126,13 @@
 	};
 	RiverCrossing.prototype = {
 		init: function() {
-			console.log(this)
 			this.set().lineAppend();
 			this.set().lineSlide();
 			this.set().rabbitAlign();
 			this.rabbitMocksumSet();
 			this.fishJump();
 			this.bind();
+			this.setSound();
 		},
 		rabbitMocksumSet: function() {
 			var html = '';
@@ -145,37 +147,75 @@
 		},
 		fishJump: function() {
 			var _this = this;
-			$(this.fishElemnt).each(function() {
-				_this.fishJumpInterval($.extend(false, _this.fishJumpObj, {
+			this.fishLenLoopArry = new Array(); //물고기 개별적으로 인터벌 시키기위한 배열요소 오브젝트들이 들어값니다. 각각
+			$(this.fishElemnt).each(function(i) {
+				_this.fishLenLoopArry.push($.extend(false, _this.fishJumpObj, {
 					self: $(this),
-					loop: null,
+					lineIdx: $(this).closest(_this.obj.lineArea).index(),
+					loop: '',
 					x: 1,
 					y: 1,
 					dy: 1,
-					gravity: 1
+					gravity: 1,
+					rotate: 0,
+					num: 0,
+					timer: Math.random() * 300
 				}));
+				_this.fishJumpInterval(_this.fishLenLoopArry[i]);
 			});
+
 		},
 		fishJumpInterval: function(args) {
 			var _this = this;
-			var args = args;
 			clearInterval(args.loop);
+			var dori = setInterval(function() {
+				args.self.toggleClass('doridori'); //물고기 좌우로 도리도리하는거
+			}, 500)
 			args.loop = setInterval(function() {
-				args.x += 12;
-				if (args.x > 570) {
-					clearInterval(args.loop);
+				args.num++;
+				if (args.num > args.timer) {
+					if (args.self.closest('.fish').is('.ready')) {
+						args.self.closest('.fish').removeClass('ready').addClass('jump');
+					}
+					args.x += 12;
+					args.rotate += 3;
+					if (args.y < -30) {
+						args.self.css({
+							'left': 1,
+							'bottom': -100,
+							'transform': 'rotate(0deg)'
+						});
+						args.self.closest('.fish').removeClass('jump').addClass('ready');
+						clearInterval(args.loop);
+						clearInterval(dori);
+						_this.fishJumpInterval($.extend(false, args, { //객체 초기화
+							x: 1,
+							y: 1,
+							dy: 1,
+							gravity: 1,
+							rotate: 0,
+							num: 0,
+						}));
+						return;
+					}
+					args.gravity += args.dy;
+					if (args.y > 20 || args.y < 0) {
+						args.dy = -1;
+					}
+					if (args.lineIdx == (_this.rabbitMoveObj.downClickLength - 1)) { //다운클릭라인은 누를대마다 하나씩 추가되기때문에  라인인덱스 체크하려면 -1 해야함
+						var selfPartLeftRight = _this.childOffsetFun(args.self, $(_this.obj.lineArea + ':eq(' + (_this.rabbitMoveObj.downClickLength - 1) + ')'), args.self.closest('.tp'));
+						if (_this.rabbitElmentLeft > selfPartLeftRight.left && _this.rabbitElmentLeft < selfPartLeftRight.right) {
+							_this.rabbitMoveMotion('fail');
+							_this.rabiitReset();
+						}
+					}
+					args.y += args.gravity;
+					args.self.css({
+						'left': args.x,
+						'bottom': args.y,
+						'transform': 'rotate(' + args.rotate + 'deg)'
+					});
 				}
-				args.gravity += args.dy;
-				if (args.y > 20 || args.y < 0) {
-					args.dy = -1;
-				}
-
-				args.y += args.gravity;
-				args.self.css({
-					'left': args.x,
-					'bottom': args.y
-				});
-
 			}, 50);
 		},
 		set: function() {
@@ -186,6 +226,7 @@
 					var tpArry = [];
 					var gubun = null;
 					var initleft = 0;
+					var asdf = true;
 					for (var x = 0; x < _this.obj.zoType; x++) {
 						tpArry.push(x);
 					}
@@ -207,9 +248,10 @@
 								for (var i = _this.obj.zoType; i >= nmv; i--) {
 									starhtml += '<i class="star"></i>';
 								}
-								//if (nmv == 1) {
-								if (false) {
-									html += '<span class="tp tp0' + nmv + '"><span class="fish"><span class="in ' + _this.strFormat(_this.fishElemnt) + '"></span></span><span class="ico">' + starhtml + '</span></span>';
+								if (nmv == 4) {
+									//if (asdf) {
+									html += '<span class="tp tp0' + nmv + '"><span class="fish ready"><span class="in rotate ' + _this.strFormat(_this.fishElemnt) + '"></span></span><span class="ico">' + starhtml + '</span></span>';
+									asdf = false;
 								} else {
 									html += '<span class="tp tp0' + nmv + '"><span class="ico">' + starhtml + '</span></span>';
 								}
@@ -236,10 +278,15 @@
 					});
 					clearInterval(_this.lineSlideLoop);
 					$('.asdfasdfasdf').click(function() {
+						tetetetetettetete = 1;
 						clearInterval(_this.lineSlideLoop);
+						clearInterval(_this.rabbitInterval);
 					});
 					$('.asfasdfasdf').click(function() {
-						_this.set().lineSlide();
+						if (tetetetetettetete == 1) {
+							_this.set().lineSlide();
+							tetetetetettetete = 0;
+						}
 					});
 					_this.lineSlideLoop = setInterval(function() {
 						_this.set().lineSlideFun();
@@ -268,16 +315,19 @@
 		},
 		bind: function() {
 			var _this = this;
-			$(document).on({
+			$(document).off().on({
 				'keyup': function(e) {
 					var gubun = '';
 					var code = e.keyCode;
 					if (code == Number(_this.obj.keycode.jump)) {
 						gubun = 'down';
+						_this.rabbitMoveObj.crrtMoveAct = 1;
 					} else if (code == Number(_this.obj.keycode.left)) {
 						gubun = 'left';
+						_this.rabbitMoveObj.crrtMoveAct = 2;
 					} else if (code == Number(_this.obj.keycode.right)) {
 						gubun = 'right';
+						_this.rabbitMoveObj.crrtMoveAct = 3;
 					}
 					_this.rabbitMove(gubun);
 				}
@@ -288,6 +338,9 @@
 		},
 		rabbitMove: function(gubun) {
 			var cssClass = null;
+			var tm = 1000;
+			var timer = null;
+			var _this = this;
 			this.rabbitMoveMotion('jump');
 			if (gubun == 'down') {
 				this.rabbitMoveObj.downClickLength++;
@@ -303,10 +356,27 @@
 			}
 			if (cssClass) {
 				$(this.rabbitElment).css(cssClass);
-				this.rabbitMoveCrrtPosFun(this.rabbitMoveObj.downClickLength);
-				this.moveGubun();
-				this.moveGubunCallb(this.rabbitMoveObj.downClickLength);
-				this.starMuckgiInit();
+				if (this.rabbitMoveObj.downClickLength > this.obj.lineLength) { //마지막 라인을 지낫을때 성공/실패
+					this.lineSlideObj.crrtStepLineElPos = [{
+						left: $('.line_finish')[0].offsetLeft,
+						right: $('.line_finish')[0].offsetLeft + $('.line_finish').width(),
+					}];
+				} else {
+					this.rabbitMoveCrrtPosFun($(this.obj.lineArea + ':eq(' + (this.rabbitMoveObj.downClickLength - 1) + ') .ico'));
+				}
+				this.moveGubun(gubun);
+				if (!this.gameFinishBool) { //게임진행중.
+					this.moveGubunCallb(this.rabbitMoveObj.downClickLength);
+					this.starMuckgiInit();
+				} else { //게임끝.
+					clearTimeout(timer);
+					$(this.rabbitElment).hide();
+					this.missCongPopFun($(this.obj.popCong), tm);
+					clearInterval(this.lineSlideLoop);
+					timer = setTimeout(function() {
+						_this.gameFinishFun();
+					}, tm + 500);
+				}
 			}
 		},
 		starMuckgiInit: function() {
@@ -346,9 +416,11 @@
 				if (this.starObj.rabbitBalpanOffset().left > this.starObj.thisBalpanElStarOffset()[i].left && this.starObj.rabbitBalpanOffset().right < this.starObj.thisBalpanElStarOffset()[i].right) {
 					var th = this.starObj.thisBalpanEl().star.eq(i);
 					var wd = th.width();
-					th.css('background', 'none');
-					this.starPoint++;
-					$(this.obj.scoreIn).text(this.starPoint);
+					if (!th.is('.muckum')) {
+						th.css('background', 'none').addClass('muckum');
+						this.starPoint++;
+						$(this.obj.scoreIn).text(this.starPoint);
+					}
 				}
 			}
 		},
@@ -368,37 +440,67 @@
 				$(_this.rabbitElment).removeAttr('data-rabbit-act');
 			}, duration);
 		},
-		moveGubun: function() {
+		moveGubun: function(gubun) { //성공인지 실패인지 확인하는 함수 
 			var _this = this;
 			_this.rabbitMoveObj.moveDownBool = false;
 			$.each(this.lineSlideObj.crrtStepLineElPos, function(i, o) {
 				if (_this.rabbitMoveObj.crrtPosObj.left > o.left - _this.obj.rabbitCellSpacing && _this.rabbitMoveObj.crrtPosObj.right < o.right + _this.obj.rabbitCellSpacing) {
-					_this.rabbitMoveObj.moveDownBool = true;
-					_this.rabbitMoveObj.crrtRabbitTrueIdx = i;
+					_this.rabbitMoveObj.moveDownBool = true; //성공 true, 실패 false
+					_this.rabbitMoveObj.crrtRabbitTrueIdx = i; //현재 올라가있는 요소의 인덱스
+					if (_this.rabbitMoveObj.downClickLength > _this.obj.lineLength) {
+						_this.gameFinishBool = true;
+					}
 				}
 			});
+			if (!_this.rabbitMoveObj.moveDownBool && (gubun == 'left' || gubun == 'right')) { //옆으로갈때는 성공(프레임에 걸리지않는한. 0이하, 1200 이상일땐 실패)
+				_this.rabbitMoveObj.moveDownBool = true;
+				var gubunval = null;
+				var vl = 0;
+				switch (gubun) {
+					case 'left':
+						if (_this.rabbitMoveObj.crrtRabbitTrueIdx > 0) {
+							vl = _this.rabbitMoveObj.crrtRabbitTrueIdx - 1;
+							gubunval = _this.lineSlideObj.crrtStepLineElPos[vl].right;
+						}
+						break;
+					case 'right':
+						if (_this.rabbitMoveObj.crrtRabbitTrueIdx < 7) {
+							vl = _this.rabbitMoveObj.crrtRabbitTrueIdx + 1;
+							gubunval = _this.lineSlideObj.crrtStepLineElPos[vl].left;
+						}
+						break;
+				}
+				if (gubunval) { //인덱스를 뺄수없을때, 0 / 7
+					$(_this.rabbitElment).css({
+						'left': gubunval
+					});
+					_this.rabbitMoveObj.crrtRabbitTrueIdx = vl;
+				} else {
+					_this.rabiitReset();
+				}
+			}
 		},
 		moveGubunCallb: function(cnt) {
 			var _this = this;
 			var cnt = cnt - 1;
 			_this.lineSlideObj.thisLineIdx = cnt;
-			if (_this.rabbitMoveObj.moveDownBool) {
+			if (_this.rabbitMoveObj.moveDownBool) { //성공
 				_this.lineBunkFun(cnt, _this.rabbitMoveObj.crrtRabbitTrueIdx);
 				clearInterval(_this.rabbitInterval);
 				_this.rabbitInterval = setInterval(function() {
-					var $left = $(_this.rabbitElment)[0].offsetLeft + _this.lineSlideObj.thisLinePos[cnt][1].x;
+					var $left = _this.lineSlideObj.thisLinePos[cnt] ? $(_this.rabbitElment)[0].offsetLeft + _this.lineSlideObj.thisLinePos[cnt][1].x : (_this.lineSlideObj.innerWidth / 2) - ($(_this.rabbitElment).width() / 2);
+					if ($left < 0 || $left > _this.lineSlideObj.innerWidth) {
+						clearInterval(_this.rabbitInterval);
+						_this.rabbitMoveMotion('fail');
+						_this.rabiitReset();
+						return;
+					}
+					_this.rabbitElmentLeft = $left;
 					$(_this.rabbitElment).css({
 						'left': $left
 					});
-					//옆으로갈때 엘리먼트 넘어가면 실패
-					if ($left > (_this.lineSlideObj.innerWidth - _this.rabbitMoveObj.step.leftright) || $left < _this.rabbitMoveObj.step.leftright) {
-						_this.rabbitMoveObj.moveDownBool = false;
-						_this.moveGubunCallb();
-					}
 				}, _this.obj.initIntervalDuration / _this.obj.level);
-				console.log('성공')
-			} else {
-				console.log('실패')
+			} else { //실패
 				_this.rabbitMoveMotion('fail');
 				_this.rabiitReset();
 			}
@@ -424,7 +526,9 @@
 				duration = 3000;
 				var imgl = 3;
 				var cnt = 0;
-				var time = setInterval(function() {
+				var time = null;
+				clearInterval(time);
+				time = setInterval(function() {
 					cnt++;
 					$target.attr('data-motion', cnt);
 					if (cnt == imgl) {
@@ -472,18 +576,17 @@
 				$pop.hide();
 			}, time ? time : 1000);
 		},
-		rabbitMoveCrrtPosFun: function(cnt) {
+		rabbitMoveCrrtPosFun: function($tar) {
 			var _this = this;
 			var lp = {};
 			_this.lineSlideObj.crrtStepLineElPos = [];
-			$(this.obj.lineArea + ':eq(' + (cnt - 1) + ') .ico').each(function() {
+			$tar.each(function() {
 				var $this = $(this);
 				var $parent = $this.closest(_this.obj.lineArea);
 				var $tp = $this.closest('.tp');
 				lp = _this.childOffsetFun($this, $parent, $tp);
 				_this.lineSlideObj.crrtStepLineElPos.push(lp);
 			});
-			console.log(_this.lineSlideObj.crrtStepLineElPos)
 			this.rabbitMoveObj.crrtPosObj = {
 				left: $(this.rabbitElment)[0].offsetLeft,
 				right: $(this.rabbitElment).width() + $(this.rabbitElment)[0].offsetLeft,
@@ -492,7 +595,7 @@
 			};
 		},
 		childOffsetFun: function($this, $parent, $tp) {
-			var l = Math.abs($tp[0].offsetLeft + $this[0].offsetLeft + Number(this.strFormat($parent.css('left'), 'px')));
+			var l = $tp[0].offsetLeft + $this[0].offsetLeft + Number(this.strFormat($parent.css('left'), 'px'));
 			return {
 				left: l,
 				right: l + $this.width()
@@ -510,7 +613,7 @@
 		},
 		gamePiontFun: function() {
 			this.getSound(this.sound.lst[2]);
-			this.gamePoint = Math.floor((this.ballScore * this.obj.maxGamePoint) / (this.ballCount * 100));
+			this.gamePoint = Math.floor((this.starPoint / $('.star').length) * this.obj.maxGamePoint);
 			Game.point = this.gamePoint;
 		},
 		setSound: function() {
@@ -551,7 +654,7 @@
 		$('#ybm_game_2_ready').hide();
 		rivercrossing = new RiverCrossing({
 			maxGamePoint: 25,
-			// level: 10
+			level: 8,
 		});
 	}).click();
 	//끝났을때

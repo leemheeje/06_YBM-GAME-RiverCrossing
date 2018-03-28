@@ -49,9 +49,15 @@ html, body{height: 100%;}
 .contr .contr_arrow .right{background-image: url(../images/contr_right.png);}
 .score{width: 189px; height: 59px; background: url(../images/scroe.png) no-repeat left top; position: absolute; left: 121px; top: 17px;}
 .score .in{font-size: 30px; padding-left: 110px; display: block; font-weight: bold; height: 100%; line-height: 48px; text-align: left;}
-.line_wrap .line .tp .fish{position: absolute; left: 0; bottom: 0; width: 47px; height: 42px;}
-.line_wrap .line .tp .fish:after{content: ''; width: 100%; height: 100%; background: url(../images/fss.png) no-repeat center bottom; position: absolute; left: 0; bottom: 0;}
-.line_wrap .line .tp .fish .in{background: url(../images/fs.png) no-repeat left top; position: absolute; left: 0; bottom: 0; width: 100%; height: 100%;}
+.line_wrap .line .tp{overflow: visible;}
+.line_wrap .line .tp .fish{position: absolute; left: 0; bottom: 0; width: 314px; height: 100px; overflow: hidden;}
+.line_wrap .line .tp .fish:after{content: ''; width: 100%; height: 100%; background: url(../images/fss.png) no-repeat left bottom; position: absolute; left: 0; bottom: -30px; transition: all 1s ease; opacity: 1;}
+.line_wrap .line .tp .fish.jump:after{ opacity: 0; transition: all 1s ease;}
+.line_wrap .line .tp .fish.ready:after{ bottom: 0; transition: bottom 1s ease;}
+.line_wrap .line .tp .fish.ready .in{ bottom: -20px !important; transition: bottom 1s ease;}
+.line_wrap .line .tp .fish .in{background: url(../images/fs.png) no-repeat left top; position: absolute; left: 0; bottom: -20px; width: 47px; height: 42px; }
+.line_wrap .line .tp .fish.ready .in.doridori{background-image: url(../images/fs.png);}
+.line_wrap .line .tp .fish .in.rotate{background-image: url(../images/fs_rota.png);}
 .pop_a{position: absolute; left: 0; top: 0; z-index: 10; width: 100%; height: 100%; display: none;}
 .pop_a.popMiss{background: rgba(46,52,51,.7) url(../images/miss.png) no-repeat center center;}
 .pop_a.popCong{background: rgba(108,46,22,.7) url(../images/cong.png) no-repeat center center;}
@@ -60,6 +66,11 @@ html, body{height: 100%;}
 .rabbit_moksum .rabbit_moksum_cnt[data-on="on"]{background-image: url(../images/muy.png);}
 .rabbit_moksum .rabbit_moksum_cnt[data-on="off"]{background-image: url(../images/muy2.png);}
 /* 애니세이션 */
+@keyframes doridori{
+	0%{background-image: url(../images/fs.png);}
+	45%{background-image: url(../images/fs_rota.png);}
+	100%{background-image: url(../images/fs.png);}
+}
 @keyframes croc_head{
 	0%{transform: rotate(0deg);}
 	15%{transform: rotate(5deg);}
@@ -275,3 +286,20 @@ html, body{height: 100%;}
     top: 13px;
     right: 30px;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.line_wrap .line .tp div{position: absolute; left: 50%; top: 0; font-size: 30px; color: red; font-weight: red;}

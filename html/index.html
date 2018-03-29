@@ -67,16 +67,16 @@
 			maxGamePoint: 25, //Game.point
 			lineLength: 6, //라인갯수 기획상 6개라서 6개. 변경하려면 css도 수정해야함 높이값
 			lineWrap: '.lineWrap', //라인전체를 감싸는 wrap class name
-			lineArea: '.lineArea',//라인영역 class name
+			lineArea: '.lineArea', //라인영역 class name
 			zoType: 4, //한라인안에 오브젝트 타입. tp01 : 통나무 , tp02 : 종이배 , tp03: 악어, tp04:작은통나무
 			level: 5, //라인의 움직이는 스피드 조정 높을수록 빠르게. 
 			rabbitMocksum: 3, //토기의 목숨갯수
 			initIntervalDuration: 100, //레벨로 인하여 타임을 측정하는 duraition ==> initIntervalDuration/ level
 			rabbitCellSpacing: 10,
-			popMiss: '.popMiss',//미쓰 마크업 
-			popCong: '.popCong',//성공 마크업 
-			scoreIn: '.scoreIn',//스코어 동전 마크업 
-			rabbitMocksumCnt: '.rabbitMocksumCnt',//토끼 목숨 표시하는 마크업
+			popMiss: '.popMiss', //미쓰 마크업 
+			popCong: '.popCong', //성공 마크업 
+			scoreIn: '.scoreIn', //스코어 동전 마크업 
+			rabbitMocksumCnt: '.rabbitMocksumCnt', //토끼 목숨 표시하는 마크업
 			contrBtns: { jump: '.contrJump', left: '.contrLeft', right: '.contrRight' }, //컨트롤 버튼 클랙스네밍ㅁ
 			keycode: { jump: 40, left: 37, right: 39 } //모바일 키코드
 		}, obj);
@@ -247,7 +247,7 @@
 								for (var i = _this.obj.zoType; i >= nmv; i--) {
 									starhtml += '<i class="star"></i>';
 								}
-								if (nmv == 4) {//tp04 에만 물고기추가
+								if (nmv == 4) { //tp04 에만 물고기추가
 									html += '<span class="tp tp0' + nmv + '"><span class="fish ready"><span class="in rotate ' + _this.strFormat(_this.fishElemnt) + '"></span></span><span class="ico">' + starhtml + '</span></span>';
 								} else {
 									html += '<span class="tp tp0' + nmv + '"><span class="ico">' + starhtml + '</span></span>';
